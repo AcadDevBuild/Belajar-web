@@ -19,11 +19,34 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// PostgreSQL Connection Pool (Railway provides DATABASE_URL automatically)
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/solvient_growth',
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
-});
+// Helper to resolve Railway database connection string
+function getConnectionString() {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  if (process.env.DATABASE_PUBLIC_URL) return process.env.DATABASE_PUBLIC_URL;
+  if (process.env.POSTGRES_URL) return process.env.POSTGRES_URL;
+  if (process.env.PGHOST) {
+    const user = process.env.PGUSER || 'postgres';
+    const pass = process.env.PGPASSWORD ? `:${process.env.PGPASSWORD}` : '';
+    const host = process.env.PGHOST;
+    const port = process.env.PGPORT || 5432;
+    const db = process.env.PGDATABASE || 'railway';
+    return `postgresql://${user}${pass}@${host}:${port}/${db}`;
+  }
+  return null;
+}
+
+const dbUrl = getConnectionString();
+const isProduction = !!process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === 'production';
+
+let pool = null;
+if (dbUrl) {
+  // If connecting to internal Railway domain (e.g. postgres.railway.internal), SSL is not needed
+  const isInternal = dbUrl.includes('.railway.internal') || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+  pool = new Pool({
+    connectionString: dbUrl,
+    ssl: isInternal ? false : { rejectUnauthorized: false }
+  });
+}
 
 // Helper: Secure Hashing
 function hashPassword(password, salt) {
@@ -41,9 +64,14 @@ function verifyPassword(password, storedHash, storedSalt) {
 // AUTO-INITIALIZE POSTGRESQL ON BOOT
 // ==========================================
 async function initDatabase() {
+  if (!pool) {
+    console.log('ℹ️ DATABASE_URL belum di-link di tab Variables.');
+    console.log('👉 Cara hubungkan di Railway: Belajar-web -> tab Variables -> New Variable -> Add Reference -> DATABASE_URL (Postgres) -> Add.');
+    return;
+  }
   try {
     const client = await pool.connect();
-    console.log('✅ Connected to PostgreSQL Database on Railway.');
+    console.log('✅ Berhasil terhubung ke PostgreSQL Database di Railway!');
 
     // Check if tables exist, if not execute schema.sql
     const res = await client.query(`
@@ -54,15 +82,16 @@ async function initDatabase() {
     `);
 
     if (!res.rows[0].exists) {
-      console.log('📦 Executing schema.sql to initialize database tables...');
+      console.log('📦 Menjalankan schema.sql untuk membuat tabel dan data awal...');
       const schemaSql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
       await client.query(schemaSql);
-      console.log('✅ Database schema and seed data created successfully.');
+      console.log('✅ Database tables dan seed data berhasil dibuat di PostgreSQL.');
+    } else {
+      console.log('✅ Tabel database sudah ada dan siap digunakan.');
     }
     client.release();
   } catch (err) {
     console.error('⚠️ Database connection error:', err.message);
-    console.log('ℹ️ Running in frontend-static fallback mode if database is unconfigured.');
   }
 }
 initDatabase();
@@ -71,8 +100,23 @@ initDatabase();
 // API ROUTES
 // ==========================================
 
+// Guard: Check DB connection
+app.use('/api', (req, res, next) => {
+  if (req.path === '/health') return next();
+  if (!pool) {
+    return res.status(503).json({
+      error: 'Database PostgreSQL belum dihubungkan di Railway.',
+      hint: 'Buka service Belajar-web -> tab Variables -> Add Reference -> pilih DATABASE_URL (Postgres) -> klik Add.'
+    });
+  }
+  next();
+});
+
 // Health Check
 app.get('/api/health', async (req, res) => {
+  if (!pool) {
+    return res.json({ status: 'waiting_for_database', hint: 'Link DATABASE_URL in Variables tab' });
+  }
   try {
     const dbRes = await pool.query('SELECT NOW()');
     res.json({ status: 'ok', time: dbRes.rows[0].now, database: 'connected' });
@@ -371,8 +415,36 @@ app.post('/api/admin/topups/:id/reject', async (req, res) => {
   }
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 Solvient Growth Server running on http://localhost:${PORT}`);
+// Start Server on primary PORT and fallback ports (0.0.0.0 binds to all network interfaces)
+const http = require('http');
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Solvient Growth Server running on port ${PORT}`);
   console.log(`📦 Railway Environment: ${process.env.RAILWAY_ENVIRONMENT || 'Local'}`);
 });
+
+// Resilient port listener: Also listen on port 3306 if Railway routed domain to 3306
+if (String(PORT) !== '3306') {
+  try {
+    const s3306 = http.createServer(app);
+    s3306.listen(3306, '0.0.0.0', () => {
+      console.log('🚀 Also listening on port 3306 for Railway routing');
+    });
+    s3306.on('error', (err) => {
+      console.log('Notice: Port 3306 fallback skipped (' + err.message + ')');
+    });
+  } catch (e) {}
+}
+
+// Resilient port listener: Also listen on port 3000 if PORT is set to something else
+if (String(PORT) !== '3000') {
+  try {
+    const s3000 = http.createServer(app);
+    s3000.listen(3000, '0.0.0.0', () => {
+      console.log('🚀 Also listening on port 3000 for standard web routing');
+    });
+    s3000.on('error', (err) => {
+      console.log('Notice: Port 3000 fallback skipped (' + err.message + ')');
+    });
+  } catch (e) {}
+}
