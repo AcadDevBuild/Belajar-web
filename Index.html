@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Solvient Growth — Strategic Content Performance Support</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { primary:"#3B82F6","primary-hover":"#2563EB","primary-light":"#60A5FA" },
+  fontFamily: { sans:["'Plus Jakarta Sans'","sans-serif"], mono:["'JetBrains Mono'","monospace"] }
+}}}
+</script>
+<script src="shared-core.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { background:#FFFFFF; color:#0F172A; font-family:'Plus Jakarta Sans',sans-serif; overflow-x:hidden; }
+  .glass-panel { background:#FFF; border:1px solid #E2E8F0; box-shadow:0 4px 6px -1px rgba(0,0,0,.05); }
+  .glass-panel:hover { border-color:#3B82F6; box-shadow:0 20px 25px -5px rgba(59,130,246,.1); }
+  .btn-primary { background:#3B82F6; color:#FFF; transition:.25s; box-shadow:0 4px 14px 0 rgba(59,130,246,.39); cursor:pointer; }
+  .btn-primary:hover { background:#2563EB; transform:translateY(-2px); box-shadow:0 6px 20px rgba(59,130,246,.5); }
+  .btn-secondary { border:1px solid #E2E8F0; color:#0F172A; background:#FFF; transition:.25s; cursor:pointer; }
+  .btn-secondary:hover { border-color:#3B82F6; color:#3B82F6; background:#F8FAFC; transform:translateY(-2px); }
+  .btn-ghost { border:1px solid transparent; color:#475569; transition:.2s; cursor:pointer; }
+  .btn-ghost:hover { background:#F1F5F9; color:#0F172A; }
+  .bg-grid { background-image:radial-gradient(rgba(59,130,246,.15) 1px,transparent 1px); background-size:28px 28px; }
+  .faq-answer { max-height:0; overflow:hidden; transition:max-height .35s, opacity .25s; opacity:0; }
+  .faq-answer.active { max-height:400px; opacity:1; }
+  .faq-icon { transition:transform .3s; } .faq-icon.active { transform:rotate(180deg); }
+  .badge-popular { background:linear-gradient(135deg,#3B82F6,#1D4ED8); box-shadow:0 4px 15px rgba(59,130,246,.4); }
+  .screen { display:none; } .screen.active { display:block; }
+  .sidebar-link { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; font-size:14px; font-weight:500; color:#475569; cursor:pointer; transition:.2s; }
+  .sidebar-link:hover { background:#EFF6FF; color:#1D4ED8; }
+  .sidebar-link.active { background:#DBEAFE; color:#1D4ED8; border-left:3px solid #3B82F6; }
+  .sidebar-link .material-symbols-outlined { font-size:20px; }
+  .page { display:none; } .page.active { display:block; animation:fadeUp .3s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .modal-bg { position:fixed; inset:0; background:rgba(15,23,42,.55); backdrop-filter:blur(6px); z-index:80; display:none; align-items:center; justify-content:center; padding:18px; overflow-y:auto; }
+  .modal-bg.show { display:flex; }
+  .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:200; padding:12px 22px; border-radius:12px; font-size:14px; font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,.15); opacity:0; transition:.3s; pointer-events:none; max-width:90vw; text-align:center; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  ::-webkit-scrollbar { width:8px; height:8px; } ::-webkit-scrollbar-thumb { background:rgba(59,130,246,.3); border-radius:4px; }
+  .tier-Classic  { background:linear-gradient(135deg,#FEF3C7,#FDE68A); }
+  .tier-Silver   { background:linear-gradient(135deg,#E2E8F0,#CBD5E1); }
+  .tier-Gold     { background:linear-gradient(135deg,#DBEAFE,#BFDBFE); }
+  .tier-Platinum { background:linear-gradient(135deg,#FDE68A,#F59E0B); }
+  .tier-Diamond  { background:linear-gradient(135deg,#E0E7FF,#A5B4FC); }
+  .card-tier { border-radius:16px; padding:22px; position:relative; overflow:hidden; border:1px solid rgba(0,0,0,.05); }
+  .amount-btn.selected { border-color:#3B82F6; background:rgba(59,130,246,.05); }
+  .lock-badge { background:linear-gradient(135deg,#F59E0B,#D97706); color:#FFF; }
+  select:disabled { background:#F1F5F9 !important; cursor:not-allowed; color:#475569; }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- =========================================================== -->
+<!-- PUBLIC SITE                                                  -->
+<!-- =========================================================== -->
+<div id="public-site" class="screen active">
+  <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-white">
+    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#3B82F6] opacity-[0.05] blur-[140px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#2563EB] opacity-[0.05] blur-[160px]"></div>
+    <div class="absolute inset-0 bg-grid opacity-[0.4]"></div>
+  </div>
+
+  <nav class="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-xl border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
+          <span class="material-symbols-outlined text-[22px]">trending_up</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-extrabold text-lg tracking-tight text-slate-900">SOLVIENT <span class="text-primary">GROWTH</span></span>
+          <span class="text-[10px] tracking-[0.2em] text-slate-500 uppercase font-mono">Performance Support</span>
+        </div>
+      </a>
+      <div class="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-600">
+        <a class="hover:text-primary transition-colors" href="#layanan">Layanan</a>
+        <a class="hover:text-primary transition-colors" href="#program">Paket &amp; Harga</a>
+        <a class="hover:text-primary transition-colors" href="#perbandingan">Perbandingan</a>
+        <a class="hover:text-primary transition-colors" href="#cara-kerja">Cara Order</a>
+        <a class="hover:text-primary transition-colors" href="#faq">FAQ</a>
+      </div>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="openAuth('login')" id="nav-login-btn" class="hidden sm:flex btn-ghost px-4 py-2.5 rounded-lg text-sm font-semibold items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">login</span><span>Masuk</span>
+        </button>
+        <button onclick="openAuth('register')" class="btn-primary px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-2">
+          <span>DAFTAR GRATIS</span><span class="material-symbols-outlined text-[16px]">arrow_outward</span>
+        </button>
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-slate-600 rounded-lg">
+          <span class="material-symbols-outlined text-[28px]">menu</span>
+        </button>
+      </div>
+    </div>
+    <div class="lg:hidden hidden bg-white border-b border-slate-200 px-6 py-6 space-y-3" id="mobile-menu">
+      <a onclick="toggleMobileMenu()" class="block text-slate-600 hover:text-primary py-2" href="#layanan">Layanan</a>
+      <a onclick="toggleMobileMenu()" class="block text-slate-600 hover:text-primary py-2" href="#program">Paket &amp; Harga</a>
+      <a onclick="toggleMobileMenu()" class="block text-slate-600 hover:text-primary py-2" href="#perbandingan">Perbandingan</a>
+      <a onclick="toggleMobileMenu()" class="block text-slate-600 hover:text-primary py-2" href="#cara-kerja">Cara Order</a>
+      <a onclick="toggleMobileMenu()" class="block text-slate-600 hover:text-primary py-2" href="#faq">FAQ</a>
+    </div>
+  </nav>
+
+  <main class="pt-28 sm:pt-36">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono font-semibold mb-6">
+        <span class="material-symbols-outlined text-[14px]">verified</span>
+        Platform Member &amp; Optimasi Konten #1
+      </div>
+      <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.05] mb-6 max-w-4xl mx-auto">
+        Grow Your Content.<br/>
+        <span class="text-[#2563EB]">Build a Stronger Brand.</span>
+      </h1>
+      <p class="text-lg sm:text-xl text-slate-600 max-w-2xl leading-relaxed mb-10 mx-auto">
+        Ubah konten Anda menjadi pertumbuhan yang konsisten, positioning kuat, dan prospek berkualitas.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <button onclick="openAuth('register')" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:-translate-y-0.5">
+          <span>Mulai Gratis Sekarang</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </button>
+        <a href="#program" class="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-8 py-4 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all">
+          <span>Lihat Paket</span><span class="material-symbols-outlined text-[18px] text-primary">arrow_forward</span>
+        </a>
+      </div>
+      <div class="flex flex-wrap justify-center gap-6 mt-10 text-xs text-slate-500 font-mono">
+        <span class="flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500 text-[16px]">check_circle</span>1M+ Konten Dianalisis</span>
+        <span class="flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500 text-[16px]">check_circle</span>100% Keamanan Akun</span>
+        <span class="flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500 text-[16px]">check_circle</span>Max 5 Brand per Akun</span>
+      </div>
+    </section>
+
+    <!-- WHY -->
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-100" id="layanan">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Mengapa Konten Anda Tidak Berkembang?</h2>
+      </div>
+      <div class="space-y-4">
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <button class="faq-btn w-full p-5 text-left flex justify-between items-center text-slate-900 font-semibold">
+            <div class="flex items-center gap-4"><span class="text-primary font-mono text-sm">01</span><span>Posting konsisten tapi tidak berkembang?</span></div>
+            <span class="material-symbols-outlined faq-icon text-slate-400 text-xl">expand_more</span>
+          </button>
+          <div class="faq-answer px-5 pb-5 text-slate-600 text-sm leading-relaxed pl-14">Konten teratur, tetapi jangkauan & interaksi stagnan. Biasanya karena kurang optimasi hook dan sinyal algoritma.</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <button class="faq-btn w-full p-5 text-left flex justify-between items-center text-slate-900 font-semibold">
+            <div class="flex items-center gap-4"><span class="text-primary font-mono text-sm">02</span><span>Tayangan banyak, pengikut sedikit?</span></div>
+            <span class="material-symbols-outlined faq-icon text-slate-400 text-xl">expand_more</span>
+          </button>
+          <div class="faq-answer px-5 pb-5 text-slate-600 text-sm leading-relaxed pl-14">Konten menghibur tapi tidak punya value proposition kuat untuk di-follow.</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <button class="faq-btn w-full p-5 text-left flex justify-between items-center text-slate-900 font-semibold">
+            <div class="flex items-center gap-4"><span class="text-primary font-mono text-sm">03</span><span>Pengikut naik tapi tidak ada klien?</span></div>
+            <span class="material-symbols-outlined faq-icon text-slate-400 text-xl">expand_more</span>
+          </button>
+          <div class="faq-answer px-5 pb-5 text-slate-600 text-sm leading-relaxed pl-14">Masalah positioning dan funnel — audiens salah target atau CTA kurang jelas.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLASH DEAL (Dinamis dari CMS) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16" id="flash-deal-section">
+      <div class="bg-[#0B1120] p-8 sm:p-12 rounded-3xl relative overflow-hidden border border-slate-800 shadow-2xl">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary/20 blur-[120px] pointer-events-none"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+          <div class="lg:col-span-8 flex flex-col gap-5">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-400 font-mono text-xs font-bold w-max border border-amber-500/20">
+              <span class="material-symbols-outlined text-[16px]">local_fire_department</span>PENAWARAN TERBATAS
+            </div>
+            <h2 id="fd-title" class="text-3xl sm:text-5xl font-extrabold text-white leading-tight">🔥 FLASH GROWTH DEAL:<br/>ALL-IN-ONE PACK</h2>
+            <p id="fd-subtitle" class="text-base text-slate-400 max-w-xl">Paket percepatan komplit untuk 1 unggahan utama.</p>
+            <div class="p-5 bg-white/5 rounded-2xl border border-white/10 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <div id="fd-badge" class="font-bold text-white text-lg">TIKTOK &amp; INSTAGRAM GROWTH PACK</div>
+                <div id="fd-features" class="text-sm text-slate-400 font-mono mt-1">1.000 Suka • 5.000 Tayangan • 100 Simpan • 20 Komentar</div>
+              </div>
+              <div id="fd-discount-tag" class="px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-mono text-sm font-bold">HEMAT 40%</div>
+            </div>
+            <div class="flex flex-wrap items-end gap-6 pt-4">
+              <div>
+                <div id="fd-normal-price" class="text-sm text-slate-500 font-mono line-through">Rp 85.000</div>
+                <div id="fd-promo-price" class="text-4xl sm:text-5xl font-extrabold text-white font-mono tracking-tight">Rp 49.000</div>
+              </div>
+              <button onclick="requireLoginOrOrder('FLASH DEAL','1.000 Likes + 5.000 Views + 100 Saves', 49000)" class="btn-primary px-8 py-4 rounded-xl font-bold text-sm flex items-center gap-2">
+                <span>KLAIM PROMO</span><span class="material-symbols-outlined text-[18px]">arrow_outward</span>
+              </button>
+            </div>
+          </div>
+          <div class="lg:col-span-4 flex flex-col items-center lg:items-end gap-4">
+            <span class="text-xs font-mono text-slate-400 tracking-widest uppercase">Berakhir Dalam:</span>
+            <div class="flex items-center gap-3 font-mono">
+              <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl font-bold text-white border border-white/10" id="timer-hours">03</div>
+                <span class="text-[10px] text-slate-500 mt-2 font-bold">JAM</span>
+              </div>
+              <span class="text-2xl font-bold text-primary mb-6">:</span>
+              <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl font-bold text-white border border-white/10" id="timer-minutes">28</div>
+                <span class="text-[10px] text-slate-500 mt-2 font-bold">MENIT</span>
+              </div>
+              <span class="text-2xl font-bold text-primary mb-6">:</span>
+              <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl font-bold text-white border border-white/10" id="timer-seconds">45</div>
+                <span class="text-[10px] text-slate-500 mt-2 font-bold">DETIK</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAKET -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" id="program">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono font-semibold mb-3">5 LEVEL + SATUAN</div>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">PAKET &amp; BIAYA INVESTASI RESMI</h2>
+        <p class="text-base text-slate-600 mt-4">Login untuk dapat harga member, poin reward, dan diskon kasta hingga 15%.</p>
+
+        <div class="inline-flex p-1.5 rounded-2xl bg-white border border-slate-200 mt-8 max-w-lg w-full justify-between shadow-sm">
+          <button onclick="changeDuration('satuan')" id="btn-duration-satuan" class="flex-1 py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-500 transition-all">Satuan <span class="block text-[10px] font-normal opacity-80">1 Post</span></button>
+          <button onclick="changeDuration('trial')" id="btn-duration-trial" class="flex-1 py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-500 transition-all">Uji Coba <span class="block text-[10px] font-normal opacity-80">1 Post</span></button>
+          <button onclick="changeDuration('weekly')" id="btn-duration-weekly" class="flex-1 py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-500 transition-all">Mingguan <span class="block text-[10px] font-normal text-emerald-600">7 Post</span></button>
+          <button onclick="changeDuration('monthly')" id="btn-duration-monthly" class="flex-1 py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold bg-primary text-white shadow-lg">Bulanan ★ <span class="block text-[10px] font-normal text-amber-200">Hemat</span></button>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch" id="package-grid"></div>
+    </section>
+
+    <!-- TABEL PERBANDINGAN -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-100" id="perbandingan">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <span class="text-primary font-mono text-xs uppercase tracking-widest font-bold">TABEL PERBANDINGAN</span>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mt-2 mb-4">RINGKASAN BENEFIT &amp; HARGA</h2>
+      </div>
+      <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
+        <table class="w-full text-left text-xs sm:text-sm font-mono border-collapse min-w-[750px] bg-white">
+          <thead>
+            <tr class="border-b border-slate-200 bg-slate-50">
+              <th class="py-4 px-5 text-slate-900 font-bold">Program</th>
+              <th class="py-4 px-4 text-slate-500">Tayangan</th>
+              <th class="py-4 px-4 text-slate-500">Suka</th>
+              <th class="py-4 px-4 text-slate-500">Komentar</th>
+              <th class="py-4 px-4 text-slate-900 font-bold">Satuan</th>
+              <th class="py-4 px-4 text-slate-900 font-bold">Mingguan</th>
+              <th class="py-4 px-5 text-amber-600 font-bold">Bulanan ★</th>
+            </tr>
+          </thead>
+          <tbody id="compare-table" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CARA ORDER -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" id="cara-kerja">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-primary font-mono text-xs uppercase tracking-widest font-bold">ALUR MUDAH</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 mb-4">CARA MENGIKUTI PROGRAM</h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div class="glass-panel p-6 rounded-2xl flex flex-col items-center text-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-primary text-white font-bold font-mono text-lg flex items-center justify-center">01</div>
+          <h4 class="font-bold text-slate-900 text-sm">Daftar Akun</h4>
+          <p class="text-xs text-slate-500">Gratis &amp; dapat 50 poin.</p>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl flex flex-col items-center text-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-primary text-white font-bold font-mono text-lg flex items-center justify-center">02</div>
+          <h4 class="font-bold text-slate-900 text-sm">Top-Up Saldo</h4>
+          <p class="text-xs text-slate-500">Via QRIS.</p>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl flex flex-col items-center text-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-primary text-white font-bold font-mono text-lg flex items-center justify-center">03</div>
+          <h4 class="font-bold text-slate-900 text-sm">Pilih Paket</h4>
+          <p class="text-xs text-slate-500">Satuan / Mingguan / Bulanan.</p>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl flex flex-col items-center text-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-primary text-white font-bold font-mono text-lg flex items-center justify-center">04</div>
+          <h4 class="font-bold text-slate-900 text-sm">Kirim Link</h4>
+          <p class="text-xs text-slate-500">Masukkan URL konten.</p>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl flex flex-col items-center text-center gap-3 border-emerald-500/30 bg-emerald-500/[0.02]">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white font-bold font-mono text-lg flex items-center justify-center">05</div>
+          <h4 class="font-bold text-emerald-600 text-sm">Tracking</h4>
+          <p class="text-xs text-slate-500">Pantau &amp; dapat poin.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20" id="faq">
+      <div class="text-center mb-12">
+        <span class="text-primary font-mono text-xs uppercase tracking-widest font-bold">PUSAT INFORMASI</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 mb-3">PERTANYAAN UMUM</h2>
+      </div>
+      <div id="faq-accordion-list" class="space-y-4">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="w-full border-t border-slate-200 bg-slate-50 py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 text-xs font-mono text-slate-500">
+      <div class="space-y-3">
+        <span class="font-extrabold text-slate-900 text-base font-sans">SOLVIENT GROWTH</span>
+        <p class="font-sans leading-relaxed">Strategic Content Performance Support.</p>
+        <p class="text-slate-400">&copy; 2026 Solvient Growth. All Rights Reserved.</p>
+      </div>
+      <div>
+        <h4 class="text-slate-900 font-bold mb-3 font-sans">PROGRAM</h4>
+        <ul class="space-y-2">
+          <li><a href="#program" class="hover:text-primary">Starter</a></li>
+          <li><a href="#program" class="hover:text-primary">Growth</a></li>
+          <li><a href="#program" class="hover:text-primary">Boost ★</a></li>
+          <li><a href="#program" class="hover:text-primary">Pro</a></li>
+          <li><a href="#program" class="hover:text-primary">Viral 🚀</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-slate-900 font-bold mb-3 font-sans">NAVIGASI</h4>
+        <ul class="space-y-2">
+          <li><a href="#layanan" class="hover:text-primary">Layanan</a></li>
+          <li><a href="#perbandingan" class="hover:text-primary">Perbandingan</a></li>
+          <li><a href="#cara-kerja" class="hover:text-primary">Cara Order</a></li>
+          <li><a href="#faq" class="hover:text-primary">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-slate-900 font-bold mb-3 font-sans">KONTAK RESMI</h4>
+        <p id="footer-hours" class="font-sans">Senin – Sabtu, 08.00 – 22.00 WIB</p>
+        <p id="footer-wa" class="mt-2 text-slate-900 font-bold">WhatsApp: +62 851-1328-6696</p>
+      </div>
+    </div>
+  </footer>
+
+  <a id="floating-wa-btn" href="https://wa.me/6285113286696" target="_blank" class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary hover:bg-primary-hover text-white shadow-2xl flex items-center justify-center transition-all hover:scale-110 z-40">
+    <span class="material-symbols-outlined text-2xl">chat</span>
+  </a>
+</div>
+
+<!-- =========================================================== -->
+<!-- MEMBER DASHBOARD (CUSTOMER PORTAL)                          -->
+<!-- =========================================================== -->
+<div id="member-app" class="screen" style="background:#F8FAFC; min-height:100vh;">
+  <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-slate-200 z-40 flex flex-col overflow-y-auto transition-transform">
+    <div class="p-5 border-b border-slate-200 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined text-[22px]">trending_up</span>
+      </div>
+      <div>
+        <div class="font-extrabold text-slate-900 text-sm leading-tight">SOLVIENT <span class="text-primary">GROWTH</span></div>
+        <div class="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Member Portal</div>
+      </div>
+    </div>
+    <nav class="flex-1 p-4 space-y-1">
+      <div class="text-[10px] font-mono text-slate-400 uppercase tracking-widest px-3 mb-2">Menu Utama</div>
+      <a class="sidebar-link active" data-page="beranda"><span class="material-symbols-outlined">dashboard</span> Beranda</a>
+      <a class="sidebar-link" data-page="order"><span class="material-symbols-outlined">shopping_cart</span> Order Baru</a>
+      <a class="sidebar-link" data-page="status"><span class="material-symbols-outlined">receipt_long</span> Status Order <span id="badge-order" class="ml-auto text-[10px] bg-primary/15 text-primary px-1.5 py-0.5 rounded-full">0</span></a>
+      <a class="sidebar-link" data-page="topup"><span class="material-symbols-outlined">qr_code</span> Top-Up Saldo</a>
+      <a class="sidebar-link" data-page="riwayat"><span class="material-symbols-outlined">history</span> Riwayat Transaksi</a>
+      <a class="sidebar-link" data-page="poin"><span class="material-symbols-outlined">stars</span> Poin &amp; Kasta</a>
+
+      <div class="text-[10px] font-mono text-slate-400 uppercase tracking-widest px-3 mt-5 mb-2">Informasi</div>
+      <a class="sidebar-link" data-page="harga"><span class="material-symbols-outlined">sell</span> Daftar Harga</a>
+      <a class="sidebar-link" data-page="bantuan"><span class="material-symbols-outlined">help</span> Bantuan</a>
+
+      <div class="text-[10px] font-mono text-slate-400 uppercase tracking-widest px-3 mt-5 mb-2">Akun Saya</div>
+      <a class="sidebar-link" data-page="profile"><span class="material-symbols-outlined">person</span> Profil &amp; Keamanan</a>
+      <a class="sidebar-link" data-page="notif"><span class="material-symbols-outlined">notifications</span> Notifikasi <span id="badge-notif" class="ml-auto text-[10px] bg-primary/15 text-primary px-1.5 py-0.5 rounded-full hidden">0</span></a>
+    </nav>
+    <div class="p-4 border-t border-slate-200">
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+        <div id="side-avatar" class="w-9 h-9 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center font-bold text-primary text-sm">U</div>
+        <div class="flex-1 min-w-0">
+          <div id="side-name" class="text-slate-900 text-sm font-semibold truncate">User</div>
+          <div id="side-tier" class="text-[10px] text-slate-500 font-mono">Classic</div>
+        </div>
+        <button onclick="handleLogout()" title="Keluar" class="text-slate-400 hover:text-red-500">
+          <span class="material-symbols-outlined text-[20px]">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="ml-0 md:ml-64 min-h-screen">
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between">
+      <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-emerald-600 text-[11px] font-mono font-semibold">ONLINE</span>
+        </div>
+        <button onclick="showPage('notif')" class="relative p-2 text-slate-500 hover:text-primary rounded-xl" title="Notifikasi">
+          <span class="material-symbols-outlined text-2xl">notifications</span>
+          <span id="top-badge-notif" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+        </button>
+        <div class="text-right">
+          <div class="text-[10px] text-slate-500 font-mono">Saldo</div>
+          <div id="top-balance" class="text-emerald-600 font-bold font-mono text-sm">Rp 0</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] text-slate-500 font-mono">Poin</div>
+          <div id="top-points" class="text-primary font-bold font-mono text-sm">0</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+
+      <!-- BERANDA -->
+      <div class="page active" id="page-beranda">
+        <div class="mb-6">
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Halo, <span id="welcome-name" class="text-[#2563EB]">User</span> 👋</h1>
+          <p class="text-slate-500 text-sm mt-1">Berikut ringkasan akun dan kasta Anda hari ini.</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-5">
+            <div id="member-card" class="card-tier tier-Classic min-h-[200px] flex flex-col justify-between">
+              <div class="relative z-10 flex justify-between items-start">
+                <div>
+                  <div class="text-slate-700/70 text-[10px] font-mono tracking-[0.3em] uppercase mb-1">Solvient Member</div>
+                  <div id="card-tier-name" class="text-slate-900 font-extrabold text-2xl tracking-tight">Classic</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-slate-700/60 text-[10px] font-mono uppercase">ID</div>
+                  <div id="card-id" class="text-slate-900 font-mono text-sm font-bold">SOL-0000</div>
+                </div>
+              </div>
+              <div class="relative z-10">
+                <div class="text-slate-700/60 text-[10px] font-mono uppercase mb-1">Nama Pemegang</div>
+                <div id="card-holder" class="text-slate-900 font-bold text-lg tracking-wide">NAMA USER</div>
+                <div class="flex justify-between items-end mt-3">
+                  <div>
+                    <div class="text-slate-700/60 text-[10px] font-mono uppercase">Member Since</div>
+                    <div id="card-since" class="text-slate-900 font-mono text-sm">2026</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-slate-700/60 text-[10px] font-mono uppercase">Poin</div>
+                    <div id="card-points" class="text-slate-900 font-mono text-lg font-bold">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200">
+              <div class="flex justify-between items-center mb-3">
+                <div>
+                  <div class="text-slate-900 font-bold text-sm">Jarak ke Kasta Berikutnya</div>
+                  <div id="progress-label" class="text-slate-500 text-xs mt-0.5">Anda memulai dari Classic</div>
+                </div>
+                <div id="progress-next-tier" class="text-primary font-mono font-bold text-xs px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20">Silver</div>
+              </div>
+              <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div id="progress-fill" class="h-full bg-gradient-to-r from-primary to-primary-light rounded-full transition-all duration-700" style="width:0%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-slate-500 font-mono mt-2">
+                <span id="progress-current">0 Poin</span><span id="progress-target">500 Poin</span>
+              </div>
+            </div>
+
+            <!-- Package Lock Warning -->
+            <div id="lock-info-box" class="hidden bg-white rounded-2xl p-5 border border-amber-300 bg-amber-50/50">
+              <div class="flex gap-3 items-start">
+                <span class="material-symbols-outlined text-amber-600 text-2xl">lock</span>
+                <div class="flex-1">
+                  <div class="text-amber-700 font-bold text-sm mb-1">🔒 Paket Anda Terkunci</div>
+                  <div id="lock-info-text" class="text-slate-700 text-xs leading-relaxed">Anda telah memilih durasi paket sebelumnya. Order berikutnya hanya untuk durasi yang sama.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200">
+              <div class="text-slate-900 font-bold text-sm mb-4">Pintasan Cepat</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <button onclick="showPage('order')" class="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-primary/40 transition-all flex flex-col items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-2xl">shopping_cart</span>
+                  <span class="text-xs font-semibold text-slate-700">Order Baru</span>
+                </button>
+                <button onclick="showPage('topup')" class="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-primary/40 transition-all flex flex-col items-center gap-2">
+                  <span class="material-symbols-outlined text-emerald-500 text-2xl">qr_code</span>
+                  <span class="text-xs font-semibold text-slate-700">Top-Up</span>
+                </button>
+                <button onclick="showPage('status')" class="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-primary/40 transition-all flex flex-col items-center gap-2">
+                  <span class="material-symbols-outlined text-amber-500 text-2xl">receipt_long</span>
+                  <span class="text-xs font-semibold text-slate-700">Status</span>
+                </button>
+                <button onclick="showPage('poin')" class="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-primary/40 transition-all flex flex-col items-center gap-2">
+                  <span class="material-symbols-outlined text-purple-500 text-2xl">stars</span>
+                  <span class="text-xs font-semibold text-slate-700">Poin</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[20px]">shopping_bag</span></div>
+                <div class="text-slate-900 font-bold text-sm">Total Order</div>
+              </div>
+              <div id="stat-orders" class="text-3xl font-extrabold text-slate-900 font-mono">0</div>
+              <div class="text-slate-500 text-xs mt-1">Order sukses</div>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span></div>
+                <div class="text-slate-900 font-bold text-sm">Saldo Aktif</div>
+              </div>
+              <div id="stat-balance" class="text-2xl font-extrabold text-emerald-600 font-mono">Rp 0</div>
+              <button onclick="showPage('topup')" class="mt-2 text-xs text-primary font-semibold hover:underline">+ Top-Up Sekarang</button>
+            </div>
+            <div class="bg-white rounded-2xl p-5 border border-slate-200">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500"><span class="material-symbols-outlined text-[20px]">stars</span></div>
+                <div class="text-slate-900 font-bold text-sm">Poin Reward</div>
+              </div>
+              <div id="stat-points" class="text-3xl font-extrabold text-primary font-mono">0</div>
+              <div class="text-slate-500 text-xs mt-1">≈ Rp <span id="stat-points-value">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <h2 class="text-xl font-extrabold text-slate-900 mb-4">Katalog Paket</h2>
+          <div id="katalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"></div>
+        </div>
+      </div>
+
+      <!-- ORDER -->
+      <div class="page" id="page-order">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">🛒 Order Baru</h1>
+          <p class="text-slate-500 text-sm mt-1">Saldo akan terpotong otomatis via sistem ledger. Poin reward bertambah setelah order sukses.</p>
+        </div>
+
+        <!-- LOCK NOTICE -->
+        <div id="order-lock-notice" class="hidden mb-5 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+          <div class="flex gap-3 items-start">
+            <span class="material-symbols-outlined text-amber-600 text-2xl">lock</span>
+            <div>
+              <div class="text-amber-700 font-bold text-sm">🔒 Durasi Paket Terkunci</div>
+              <div class="text-slate-700 text-xs mt-1 leading-relaxed">
+                Anda telah memilih durasi <strong id="lock-notice-duration" class="text-amber-700">—</strong> sebelumnya.
+                Order berikutnya hanya untuk durasi yang sama. Hubungi admin jika ingin mengubah.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200">
+            <form onsubmit="handleOrder(event)" class="space-y-5">
+              <!-- BRAND SELECTOR -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Brand / Akun *</label>
+                  <button type="button" onclick="openBrandManager()" class="text-xs text-primary font-semibold hover:underline flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">add</span>Kelola Brand
+                  </button>
+                </div>
+                <select id="order-brand" onchange="onBrandChange()" required class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm">
+                  <option value="">Pilih Brand</option>
+                </select>
+                <p class="text-[11px] text-slate-400 mt-1.5">
+                  Maksimal 5 brand per akun. <span id="brand-count-badge" class="font-mono">(0/5)</span>
+                </p>
+              </div>
+
+              <!-- PAKET -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Paket *</label>
+                <select id="order-package" onchange="updateOrderPreview()" required class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm">
+                  <option value="">Pilih Paket</option>
+                </select>
+              </div>
+
+              <!-- DURASI -->
+              <div id="duration-wrapper">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  Durasi * <span id="duration-lock-badge" class="hidden ml-2 text-[10px] px-2 py-0.5 rounded-full lock-badge font-mono">🔒 TERKUNCI</span>
+                </label>
+                <select id="order-duration" onchange="updateOrderPreview()" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm">
+                  <option value="satuan">Satuan (1 Post)</option>
+                  <option value="trial">Uji Coba (1 Post)</option>
+                  <option value="weekly">Mingguan (7 Post)</option>
+                  <option value="monthly" selected>Bulanan (30 Post)</option>
+                </select>
+                <p id="duration-lock-hint" class="hidden text-[11px] text-amber-600 mt-1.5">
+                  ⚠️ Durasi terkunci karena sudah pernah order sebelumnya.
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Platform *</label>
+                <select id="order-platform" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm">
+                  <option>TikTok</option><option>Instagram</option><option>YouTube</option><option>Shopee</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Link Konten / Username *</label>
+                <input type="text" id="order-target" required placeholder="https://tiktok.com/@username/video/..." class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Jumlah Order *</label>
+                <input type="number" id="order-qty" value="1" min="1" max="50" required class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"/>
+                <p class="text-[11px] text-slate-400 mt-1.5">Total harga = Harga/Post × Jumlah Post × Jumlah Order.</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Catatan (Opsional)</label>
+                <textarea id="order-notes" rows="2" placeholder="Arahan komentar, target audiens..." class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"></textarea>
+              </div>
+              <button type="submit" class="w-full btn-primary py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+                <span>KONFIRMASI ORDER</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 border border-primary/30 space-y-4 h-max">
+            <div class="text-xs font-mono text-primary uppercase tracking-widest font-bold">Preview Order</div>
+            <div id="order-preview" class="space-y-3 text-sm">
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Brand:</span><span class="text-slate-900 font-mono font-semibold">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Paket:</span><span class="text-slate-900 font-mono font-semibold">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Durasi:</span><span class="text-slate-900 font-mono">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Harga/Post:</span><span class="text-slate-900 font-mono">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Jumlah Post:</span><span class="text-slate-900 font-mono">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Subtotal:</span><span class="text-slate-900 font-mono">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Diskon Kasta:</span><span class="text-emerald-600 font-mono">—</span></div>
+              <div class="border-t border-slate-100 pt-3 flex justify-between"><span class="text-slate-500 text-sm">Total Bayar:</span><span class="text-slate-900 font-mono font-bold">—</span></div>
+              <div class="flex justify-between text-sm"><span class="text-slate-500">Poin:</span><span class="text-primary font-mono font-bold">+0</span></div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <div class="flex justify-between mb-1"><span class="text-slate-500">Saldo Anda:</span><span class="text-slate-900 font-bold font-mono" id="preview-balance">Rp 0</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Sisa setelah order:</span><span class="text-emerald-600 font-bold font-mono" id="preview-remaining">Rp 0</span></div>
+            </div>
+            <div id="balance-warning" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-700">
+              ⚠️ Saldo kurang. <button onclick="showPage('topup')" class="font-bold underline">Top-Up dulu</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS -->
+      <div class="page" id="page-status">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">📋 Status Order</h1>
+          <p class="text-slate-500 text-sm mt-1">Riwayat seluruh order Anda.</p>
+        </div>
+        <div id="order-list" class="space-y-3"></div>
+      </div>
+
+      <!-- TOP UP -->
+      <div class="page" id="page-topup">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">💳 Top-Up Saldo</h1>
+          <p class="text-slate-500 text-sm mt-1">Scan QRIS dengan aplikasi bank atau e-wallet Anda.</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200">
+            <div class="text-xs font-mono text-primary uppercase tracking-widest font-bold mb-4">1. Pilih Nominal</div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+              <button onclick="selectAmount(25000, event)" class="amount-btn p-4 rounded-xl border border-slate-200 hover:border-primary text-center transition-all">
+                <div class="text-2xl font-extrabold text-slate-900 font-mono">25K</div>
+                <div class="text-[10px] text-slate-500">Rp 25.000</div>
+              </button>
+              <button onclick="selectAmount(50000, event)" class="amount-btn p-4 rounded-xl border border-slate-200 hover:border-primary text-center transition-all">
+                <div class="text-2xl font-extrabold text-slate-900 font-mono">50K</div>
+                <div class="text-[10px] text-slate-500">Rp 50.000</div>
+              </button>
+              <button onclick="selectAmount(100000, event)" class="amount-btn p-4 rounded-xl border border-slate-200 hover:border-primary text-center transition-all">
+                <div class="text-2xl font-extrabold text-slate-900 font-mono">100K</div>
+                <div class="text-[10px] text-slate-500">Rp 100.000</div>
+              </button>
+              <button onclick="selectAmount(250000, event)" class="amount-btn p-4 rounded-xl border border-slate-200 hover:border-primary text-center transition-all">
+                <div class="text-2xl font-extrabold text-slate-900 font-mono">250K</div>
+                <div class="text-[10px] text-emerald-600 font-bold">+2% bonus</div>
+              </button>
+              <button onclick="selectAmount(500000, event)" class="amount-btn p-4 rounded-xl border border-slate-200 hover:border-primary text-center transition-all">
+                <div class="text-2xl font-extrabold text-slate-900 font-mono">500K</div>
+                <div class="text-[10px] text-emerald-600 font-bold">+5% bonus</div>
+              </button>
+              <button onclick="selectAmount(1000000, event)" class="amount-btn p-4 rounded-xl border border-slate-200 hover:border-primary text-center transition-all">
+                <div class="text-2xl font-extrabold text-slate-900 font-mono">1JT</div>
+                <div class="text-[10px] text-emerald-600 font-bold">+7% bonus</div>
+              </button>
+            </div>
+            <div class="text-xs font-mono text-primary uppercase tracking-widest font-bold mb-3">2. Nominal Custom</div>
+            <div class="flex gap-2 mb-6">
+              <input type="number" id="custom-amount" placeholder="Rp 0" class="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm font-mono" oninput="onCustomAmount()"/>
+              <button onclick="onCustomAmount()" class="btn-secondary px-4 rounded-xl text-xs font-semibold">Pakai</button>
+            </div>
+            <div class="text-xs font-mono text-primary uppercase tracking-widest font-bold mb-3">3. Scan QRIS &amp; Bayar</div>
+            <div class="flex flex-col sm:flex-row gap-5 items-center p-5 rounded-2xl bg-slate-50 border border-slate-200">
+              <div class="w-56 h-auto bg-white rounded-xl border border-slate-200 flex items-center justify-center p-2 shadow">
+                <img id="qris-img" src="QR PEMBAYARAN SOLVIENT.jpg" alt="QRIS Solvient Growth" class="w-full h-auto object-contain rounded-lg"/>
+              </div>
+              <div class="flex-1 space-y-3">
+                <div class="text-slate-900 font-bold text-sm">Cara Bayar:</div>
+                <ol class="text-slate-600 text-xs space-y-1 list-decimal list-inside">
+                  <li>Pilih nominal di atas</li>
+                  <li>Buka aplikasi bank/e-wallet → QRIS → Scan</li>
+                  <li>Masukkan nominal sesuai <strong>Total Bayar</strong></li>
+                  <li>Setelah berhasil bayar, klik tombol di bawah</li>
+                </ol>
+                <div class="pt-3 border-t border-slate-200">
+                  <div class="text-[10px] text-slate-500 font-mono">Total Bayar</div>
+                  <div class="text-2xl font-extrabold text-primary font-mono" id="qris-total">Rp 0</div>
+                </div>
+                <div class="text-[10px] text-slate-400 font-mono">ID Transaksi: <span id="qris-id">—</span></div>
+                <div class="text-[10px] text-slate-400 font-mono">NMID: ID1026581340399 · A01</div>
+              </div>
+            </div>
+
+            <!-- PERINGATAN -->
+            <div class="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 flex gap-3 items-start">
+              <span class="material-symbols-outlined text-amber-600 text-xl shrink-0">info</span>
+              <div class="text-xs text-amber-800 leading-relaxed">
+                <strong>Penting:</strong> Klik tombol <em>"Saya Sudah Bayar"</em> HANYA setelah pembayaran QRIS berhasil. Saldo akan masuk setelah verifikasi admin (max 5–15 menit). <br>Jangan klik sebelum membayar!
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 space-y-4 h-max sticky top-24">
+            <div class="text-xs font-mono text-primary uppercase tracking-widest font-bold">Ringkasan</div>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Nominal:</span><span class="text-slate-900 font-mono font-bold" id="sum-nominal">Rp 0</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Bonus:</span><span class="text-emerald-600 font-mono font-bold" id="sum-bonus">Rp 0</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Biaya Admin:</span><span class="text-slate-900 font-mono" id="sum-admin">Rp 0</span></div>
+              <div class="flex justify-between text-xs pt-1 border-t border-slate-100"><span class="text-slate-500">Total Bayar:</span><span class="text-primary font-mono font-bold" id="sum-pay">Rp 0</span></div>
+              <div class="border-t border-slate-100 pt-2 flex justify-between"><span class="text-slate-500 text-sm">Saldo Diterima:</span><span class="text-emerald-600 font-mono font-bold text-lg" id="sum-total">Rp 0</span></div>
+            </div>
+            <button onclick="confirmTopup()" id="confirm-topup-btn" disabled class="w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-slate-200 text-slate-400 cursor-not-allowed">
+              <span class="material-symbols-outlined text-[18px]">payments</span>
+              <span>SAYA SUDAH BAYAR</span>
+            </button>
+            <p class="text-[10px] text-slate-400 text-center">Saldo masuk setelah verifikasi admin</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIWAYAT -->
+      <div class="page" id="page-riwayat">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">📜 Riwayat Transaksi</h1>
+          <p class="text-slate-500 text-sm mt-1">Buku mutasi transaksi top-up dan order Anda.</p>
+        </div>
+        <div id="history-list" class="space-y-3"></div>
+      </div>
+
+      <!-- POIN -->
+      <div class="page" id="page-poin">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">⭐ Poin &amp; Kasta</h1>
+          <p class="text-slate-500 text-sm mt-1">Semakin tinggi kasta, semakin besar diskon &amp; rate poin.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-primary/30 mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div class="text-xs text-slate-500 font-mono uppercase">Saldo Poin</div>
+              <div id="poin-saldo" class="text-4xl font-extrabold text-primary font-mono mt-1">0</div>
+              <div class="text-xs text-slate-500 mt-1">Senilai <span id="poin-value" class="text-slate-900 font-mono font-bold">Rp 0</span></div>
+            </div>
+            <span class="material-symbols-outlined text-primary text-6xl opacity-30">stars</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4" id="tier-grid"></div>
+      </div>
+
+      <!-- HARGA -->
+      <div class="page" id="page-harga">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">💰 Daftar Harga Member</h1>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[800px]">
+              <thead class="bg-slate-50">
+                <tr class="text-left text-xs uppercase font-mono text-slate-500">
+                  <th class="p-4">Paket</th><th class="p-4">Kasta</th><th class="p-4">Satuan</th>
+                  <th class="p-4">Uji Coba</th><th class="p-4">Mingguan</th>
+                  <th class="p-4 text-primary">Bulanan ★</th>
+                </tr>
+              </thead>
+              <tbody id="price-table" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- BANTUAN -->
+      <div class="page" id="page-bantuan">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">💬 Bantuan &amp; Kontak</h1>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a id="support-wa-link" href="https://wa.me/6285113286696" target="_blank" class="bg-white rounded-2xl p-6 border border-slate-200 hover:border-primary/40 transition-all">
+            <span class="material-symbols-outlined text-green-500 text-3xl">chat</span>
+            <div class="text-slate-900 font-bold mt-3">WhatsApp Admin</div>
+            <div id="support-wa-display" class="text-slate-500 text-xs mt-1">+62 851-1328-6696</div>
+          </a>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200">
+            <span class="material-symbols-outlined text-pink-500 text-3xl">photo_camera</span>
+            <div class="text-slate-900 font-bold mt-3">Instagram</div>
+            <div id="support-ig-display" class="text-slate-500 text-xs mt-1">@SolvientGrowth</div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200">
+            <span class="material-symbols-outlined text-blue-500 text-3xl">mail</span>
+            <div class="text-slate-900 font-bold mt-3">Email</div>
+            <div id="support-email-display" class="text-slate-500 text-xs mt-1">solvientgrowth@gmail.com</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFIL & KEAMANAN AKUN (REVISI BESAR) -->
+      <div class="page" id="page-profile">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">👤 Profil &amp; Keamanan Akun</h1>
+          <p class="text-slate-500 text-sm mt-1">Kelola data diri, kontak, dan keamanan kata sandi Anda.</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 font-mono uppercase tracking-wider border-b border-slate-100 pb-3">Informasi Akun</h3>
+            <div class="space-y-3 text-xs font-mono">
+              <div class="flex justify-between py-1 border-b border-slate-50"><span class="text-slate-500">Customer ID:</span><span id="prof-id" class="text-slate-900 font-bold">—</span></div>
+              <div class="flex justify-between py-1 border-b border-slate-50"><span class="text-slate-500">Nama Lengkap:</span><span id="prof-name" class="text-slate-900 font-bold">—</span></div>
+              <div class="flex justify-between py-1 border-b border-slate-50"><span class="text-slate-500">Email:</span><span id="prof-email" class="text-slate-900 font-bold">—</span></div>
+              <div class="flex justify-between py-1 border-b border-slate-50"><span class="text-slate-500">WhatsApp:</span><span id="prof-phone" class="text-slate-900 font-bold">—</span></div>
+              <div class="flex justify-between py-1 border-b border-slate-50"><span class="text-slate-500">Peran:</span><span class="text-emerald-600 font-bold">CUSTOMER (Terverifikasi)</span></div>
+              <div class="flex justify-between py-1 border-b border-slate-50"><span class="text-slate-500">Kasta Member:</span><span id="prof-tier" class="text-primary font-bold">—</span></div>
+              <div class="flex justify-between py-1"><span class="text-slate-500">Member Sejak:</span><span id="prof-since" class="text-slate-900">—</span></div>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 font-mono uppercase tracking-wider border-b border-slate-100 pb-3">Ubah Kata Sandi</h3>
+            <form onsubmit="handleCustomerChangePassword(event)" class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase font-mono mb-1">Kata Sandi Saat Ini</label>
+                <input type="password" id="cust-cur-pass" required placeholder="••••••••" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 uppercase font-mono mb-1">Kata Sandi Baru (min. 6)</label>
+                <input type="password" id="cust-new-pass" required minlength="6" placeholder="••••••••" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900"/>
+              </div>
+              <button type="submit" class="btn-primary w-full py-3 rounded-xl font-bold text-xs">Simpan Password Baru</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFIKASI PELANGGAN -->
+      <div class="page" id="page-notif">
+        <div class="mb-6">
+          <h1 class="text-2xl font-extrabold text-slate-900">🔔 Notifikasi &amp; Pesan</h1>
+          <p class="text-slate-500 text-sm mt-1">Pemberitahuan status verifikasi top-up dan update pesanan Anda.</p>
+        </div>
+        <div id="customer-notif-list" class="space-y-3"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- =========================================================== -->
+<!-- AUTH MODAL (CUSTOMER ONLY - NO ADMIN CHOICES)               -->
+<!-- =========================================================== -->
+<div class="modal-bg" id="auth-modal">
+  <div class="bg-white rounded-3xl p-7 sm:p-8 w-full max-w-md border border-slate-200 shadow-2xl relative my-8">
+    <button onclick="closeAuth()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-900">
+      <span class="material-symbols-outlined text-2xl">close</span>
+    </button>
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/30 mb-3">
+        <span class="material-symbols-outlined text-primary text-3xl">trending_up</span>
+      </div>
+      <h2 class="text-2xl font-extrabold text-slate-900">Solvient <span class="text-[#2563EB]">Growth</span></h2>
+      <p class="text-slate-500 text-xs mt-1">Portal Member Pelanggan</p>
+    </div>
+    <div class="flex p-1 rounded-2xl bg-slate-100 border border-slate-200 mb-6">
+      <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-white shadow text-primary transition-all">Masuk</button>
+      <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-slate-500 transition-all">Daftar</button>
+    </div>
+    <form id="form-login" class="space-y-4" onsubmit="handleLogin(event)">
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 font-mono">Nama / Email</label>
+        <input type="text" id="login-email" required placeholder="Nama atau email Anda" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"/>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 font-mono">Kata Sandi</label>
+        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"/>
+      </div>
+      <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+        <span>MASUK</span><span class="material-symbols-outlined text-[18px]">arrow_outward</span>
+      </button>
+    </form>
+    <form id="form-register" class="space-y-4 hidden" onsubmit="handleRegister(event)">
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 font-mono">Nama Lengkap</label>
+        <input type="text" id="reg-name" required placeholder="Nama Anda" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"/>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 font-mono">Email</label>
+        <input type="email" id="reg-email" required placeholder="nama@email.com" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"/>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 font-mono">No. WhatsApp</label>
+        <input type="tel" id="reg-phone" required placeholder="08xxxxxxxxxx" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"/>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 font-mono">Kata Sandi (min. 6)</label>
+        <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm"/>
+      </div>
+      <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+        <span>DAFTAR GRATIS</span><span class="material-symbols-outlined text-[18px]">arrow_outward</span>
+      </button>
+      <p class="text-[11px] text-slate-500 text-center">🎁 Bonus <span class="text-primary font-bold">50 Poin</span> untuk pendaftar member baru</p>
+    </form>
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- BRAND MANAGER MODAL                                          -->
+<!-- =========================================================== -->
+<div class="modal-bg" id="brand-modal">
+  <div class="bg-white rounded-3xl p-7 w-full max-w-md border border-slate-200 shadow-2xl relative my-8">
+    <button onclick="closeBrandManager()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-900">
+      <span class="material-symbols-outlined text-2xl">close</span>
+    </button>
+    <div class="mb-5">
+      <span class="text-primary font-mono text-xs font-bold uppercase">Kelola Brand</span>
+      <h3 class="text-2xl font-extrabold text-slate-900 mt-1">Brand / Akun Anda</h3>
+      <p class="text-xs text-slate-500 mt-1">Maksimal <span class="font-bold text-slate-900">5 brand</span> per akun. <span id="brand-count-text" class="font-mono">(0/5)</span></p>
+    </div>
+    <div id="brand-list" class="space-y-2 mb-5 max-h-64 overflow-y-auto"></div>
+    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+      <div class="text-xs font-mono text-slate-500 uppercase font-bold">Tambah Brand Baru</div>
+      <input type="text" id="new-brand-name" placeholder="Nama Brand (contoh: Toko Kopi Kita)" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm"/>
+      <input type="text" id="new-brand-username" placeholder="@username atau link (opsional)" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm"/>
+      <button onclick="addBrand()" id="add-brand-btn" class="btn-primary w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        <span>TAMBAH BRAND</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER SUCCESS POPUP -->
+<div class="modal-bg" id="order-success-modal">
+  <div class="bg-white rounded-3xl p-7 w-full max-w-md border border-slate-200 shadow-2xl text-center">
+    <div class="w-16 h-16 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-4">
+      <span class="material-symbols-outlined text-emerald-500 text-4xl">check_circle</span>
+    </div>
+    <h3 class="text-xl font-extrabold text-slate-900">Pesanan Berhasil Dicatat!</h3>
+    <p class="text-slate-500 text-sm mt-2 leading-relaxed">
+      Anda akan diarahkan ke WhatsApp Admin untuk penyelesaian pembayaran dan verifikasi.
+    </p>
+    <div class="my-5 p-4 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs space-y-1.5 font-mono">
+      <div class="flex justify-between"><span class="text-slate-500">Order ID:</span><span id="success-order-id" class="text-slate-900 font-bold">-</span></div>
+      <div class="flex justify-between"><span class="text-slate-500">Brand:</span><span id="success-brand" class="text-slate-900 font-bold">-</span></div>
+      <div class="flex justify-between"><span class="text-slate-500">Paket:</span><span id="success-pkg" class="text-slate-900 font-bold">-</span></div>
+      <div class="flex justify-between"><span class="text-slate-500">Total:</span><span id="success-total" class="text-primary font-bold">-</span></div>
+      <div class="flex justify-between"><span class="text-slate-500">Status:</span><span class="text-emerald-600 font-bold">Aktif / Berjalan</span></div>
+    </div>
+    <button onclick="redirectToWhatsApp()" class="btn-primary w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">chat</span>
+      <span>OK, LANJUT KE WHATSAPP</span>
+    </button>
+  </div>
+</div>
+
+<!-- TOPUP PENDING POPUP -->
+<div class="modal-bg" id="topup-success-modal">
+  <div class="bg-white rounded-3xl p-7 w-full max-w-sm border border-slate-200 shadow-2xl text-center">
+    <div class="w-16 h-16 mx-auto rounded-full bg-amber-100 flex items-center justify-center mb-4">
+      <span class="material-symbols-outlined text-amber-500 text-4xl">schedule</span>
+    </div>
+    <h3 class="text-xl font-extrabold text-slate-900">Permintaan Dikirim! ⏳</h3>
+    <p class="text-slate-600 text-sm mt-2 leading-relaxed">Saldo akan masuk setelah admin memverifikasi pembayaran Anda (biasanya 5–15 menit).</p>
+    <div class="my-5 p-4 rounded-xl bg-amber-50 border border-amber-200 text-left space-y-2 font-mono">
+      <div class="flex justify-between text-xs"><span class="text-slate-500">ID Permintaan:</span><span id="pending-topup-id" class="text-slate-900 font-bold">—</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Nominal Bayar:</span><span id="pending-topup-pay" class="text-primary font-bold">Rp 0</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Saldo akan masuk:</span><span id="pending-topup-total" class="text-emerald-600 font-bold">Rp 0</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Status:</span><span class="text-amber-600 font-bold">⏳ Menunggu Verifikasi</span></div>
+    </div>
+    <p class="text-[11px] text-slate-400 mb-4">Cek riwayat transaksi untuk melihat status terkini.</p>
+    <button onclick="closeTopupSuccess()" class="btn-primary w-full py-3 rounded-xl font-bold text-sm">OKE, MENGERTI</button>
+  </div>
+</div>
+
+<div id="toast" class="toast bg-primary text-white">Notifikasi</div>
+
+<!-- =========================================================== -->
+<!-- SCRIPT: CUSTOMER APPLICATION LOGIC                         -->
+<!-- =========================================================== -->
+<script>
+(function() {
+  'use strict';
+
+  let CURRENT_USER = null;
+  let currentDuration = 'monthly';
+  let selectedAmount = 0;
+  let selectedRule = { admin:0, bonusPct:0 };
+  let selectedBonus = 0;
+  let pendingWA = null;
+
+  function showToast(msg, type='info') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + (type==='error'?'bg-red-500 text-white':type==='success'?'bg-emerald-500 text-white':'bg-primary text-white');
+    clearTimeout(window._toastT);
+    window._toastT = setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  function formatRp(n) { return SG_CORE.formatRp(n); }
+  function genId() { return 'SOL-' + Math.floor(1000 + Math.random() * 9000); }
+  function genBrandId() { return 'BR-' + Date.now().toString(36) + Math.floor(Math.random()*1000); }
+
+  // ==========================================
+  // PACKAGE RENDERER
+  // ==========================================
+  function changeDuration(d) {
+    currentDuration = d;
+    ['satuan','trial','weekly','monthly'].forEach(x => {
+      const b = document.getElementById(`btn-duration-${x}`);
+      if (!b) return;
+      if (x === d) b.className = 'flex-1 py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold bg-primary text-white shadow-lg';
+      else b.className = 'flex-1 py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-500 transition-all';
+    });
+    renderPackages();
+    renderCompareTable();
+  }
+
+  function renderPackages() {
+    const grid = document.getElementById('package-grid');
+    grid.innerHTML = SG_CORE.DEFAULT_PACKAGES.map(p => {
+      const price = p.prices[currentDuration];
+      const total = p.totals[currentDuration];
+      const m = p.metrics[currentDuration] || p.metrics.trial;
+      const isBoost = p.id === 'boost';
+      const postCount = p.postCounts[currentDuration];
+      const showSharesSaves = currentDuration !== 'trial' && currentDuration !== 'satuan' && (m.shares || m.saves);
+      return `
+        <div class="glass-panel rounded-2xl p-6 ${isBoost?'border-2 border-primary bg-primary/[0.02] shadow-[0_0_40px_rgba(59,130,246,0.1)] lg:scale-105 z-20':''} flex flex-col justify-between relative group">
+          ${isBoost?'<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 badge-popular px-3.5 py-1 rounded-full text-white text-[11px] font-mono font-bold tracking-wider uppercase flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">star</span> PALING DIPILIH</div>':''}
+          <div>
+            <div class="flex justify-between items-start mb-4 ${isBoost?'mt-2':''}">
+              <div>
+                <span class="text-xs font-mono text-primary font-bold">LEVEL 0${p.level}</span>
+                <h3 class="text-2xl font-extrabold text-slate-900">${p.name}</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded ${isBoost?'bg-primary/10 text-primary font-bold':'bg-slate-100 text-slate-600'} text-xs font-mono">${p.tier}</span>
+            </div>
+            <div class="space-y-2 py-4 border-y border-slate-100 my-4 text-xs font-mono">
+              <div class="flex justify-between"><span class="text-slate-500 flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-primary">visibility</span>Tayangan:</span><span class="text-slate-900 font-bold">≤ ${m.views.toLocaleString('id-ID')}</span></div>
+              <div class="flex justify-between"><span class="text-slate-500 flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-primary">favorite</span>Suka:</span><span class="text-slate-900 font-bold">${m.likes.toLocaleString('id-ID')}</span></div>
+              <div class="flex justify-between"><span class="text-slate-500 flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-primary">chat</span>Komentar:</span><span class="text-slate-900 font-bold">≤ ${m.comments}</span></div>
+              ${showSharesSaves ? `
+              <div class="flex justify-between"><span class="text-slate-500 flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-primary">share</span>Bagikan:</span><span class="text-emerald-600 font-bold">${m.shares}</span></div>
+              <div class="flex justify-between"><span class="text-slate-500 flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px] text-primary">bookmark</span>Simpan:</span><span class="text-emerald-600 font-bold">${m.saves}</span></div>` : ''}
+            </div>
+            <div class="text-xs text-slate-500 space-y-1 mb-6">
+              <span class="text-slate-900 font-semibold block text-[11px] uppercase font-mono">Profil Ideal:</span>
+              ${p.profile.map(x=>`<p>• ${x}</p>`).join('')}
+            </div>
+          </div>
+          <div>
+            <div class="${isBoost?'bg-primary/5 border-primary/20':'bg-slate-50 border-slate-100'} p-4 rounded-xl border mb-4">
+              <div class="text-xs text-slate-500 flex justify-between items-center"><span>Per Unggahan:</span><span class="font-mono text-primary font-bold">${formatRp(price)} / post</span></div>
+              <div class="text-2xl font-extrabold text-slate-900 font-mono mt-1">${formatRp(total)}</div>
+              <div class="text-[11px] text-emerald-600 font-mono mt-0.5">${postCount} unggahan (${SG_CORE.DURATION_LABELS[currentDuration]})</div>
+            </div>
+            <button onclick="requireLoginOrOrder('${p.name}','${postCount} unggahan ${SG_CORE.DURATION_LABELS[currentDuration]}',${total},'${p.id}')" class="${isBoost?'btn-primary':'btn-secondary'} w-full py-3 rounded-xl font-semibold text-xs flex items-center justify-center gap-2">
+              <span>ORDER ${p.id.toUpperCase()}</span><span class="material-symbols-outlined text-[16px]">arrow_outward</span>
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderCompareTable() {
+    const tb = document.getElementById('compare-table');
+    tb.innerHTML = SG_CORE.DEFAULT_PACKAGES.map(p => {
+      const m = p.metrics.monthly;
+      return `
+        <tr class="hover:bg-slate-50 transition-colors ${p.id==='boost'?'bg-primary/[0.02]':''}">
+          <td class="py-4 px-5 font-bold text-slate-900">${p.name}</td>
+          <td class="py-4 px-4 text-slate-500">${m.views.toLocaleString('id-ID')}</td>
+          <td class="py-4 px-4 text-slate-500">${m.likes.toLocaleString('id-ID')}</td>
+          <td class="py-4 px-4 text-slate-500">${m.comments}</td>
+          <td class="py-4 px-4 text-slate-900">${formatRp(p.prices.satuan)}</td>
+          <td class="py-4 px-4 text-slate-900">${formatRp(p.prices.weekly)}</td>
+          <td class="py-4 px-5 text-amber-600 font-bold">${formatRp(p.prices.monthly)}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ==========================================
+  // AUTH MODAL & LOGIC
+  // ==========================================
+  function openAuth(tab) { document.getElementById('auth-modal').classList.add('show'); switchAuthTab(tab); }
+  function closeAuth() { document.getElementById('auth-modal').classList.remove('show'); }
+  function switchAuthTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('tab-login').className = `flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${isLogin?'bg-white shadow text-primary':'text-slate-500'}`;
+    document.getElementById('tab-register').className = `flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${!isLogin?'bg-white shadow text-primary':'text-slate-500'}`;
+    document.getElementById('form-login').classList.toggle('hidden', !isLogin);
+    document.getElementById('form-register').classList.toggle('hidden', isLogin);
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    const settings = SG_CORE.DB.getSettings();
+    if (settings.allowCustomerRegistration === false) {
+      showToast('Pendaftaran pelanggan baru sedang ditutup oleh administrator.', 'error');
+      return;
+    }
+
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim().toLowerCase();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const password = document.getElementById('reg-password').value;
+
+    const users = SG_CORE.DB.getUsers();
+    if (users.find(u => u.email && u.email.toLowerCase() === email)) {
+      showToast('Email sudah terdaftar', 'error');
+      return;
+    }
+
+    const salt = SG_CORE.generateSalt();
+    const { hash } = await SG_CORE.hashPassword(password, salt);
+    const bonus = settings.defaultPointsBonus || 50;
+
+    const user = {
+      id: genId(),
+      name,
+      email,
+      phone,
+      passwordHash: hash,
+      passwordSalt: salt,
+      role: SG_CORE.ROLES.CUSTOMER, // STRICTLY CUSTOMER
+      tier: 'Classic',
+      points: bonus,
+      balance: 0,
+      totalSpend: 0,
+      status: 'ACTIVE',
+      brands: [],
+      createdAt: Date.now(),
+      lastLogin: Date.now()
+    };
+
+    users.push(user);
+    SG_CORE.DB.saveUsers(users);
+
+    SG_CORE.DB.recordPointTransaction({
+      userId: user.id,
+      type: 'BONUS',
+      amount: bonus,
+      description: 'Bonus Pendaftar Member Baru'
+    });
+
+    SG_CORE.DB.logLogin({
+      email: user.email,
+      role: user.role,
+      result: 'SUCCESS',
+      reason: 'Customer register & login'
+    });
+
+    SG_CORE.DB.setCustomerSession({ userId: user.id });
+    showToast(`Akun berhasil dibuat! +${bonus} Poin 🎉`, 'success');
+    closeAuth();
+    setTimeout(() => enterApp(user), 350);
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const idf = document.getElementById('login-email').value.trim().toLowerCase();
+    const password = document.getElementById('login-password').value;
+
+    const rateCheck = SG_CORE.RateLimiter.check(idf);
+    if (!rateCheck.allowed) {
+      showToast(rateCheck.message, 'error');
+      SG_CORE.DB.logLogin({ email: idf, role: 'UNKNOWN', result: 'LOCKED', reason: rateCheck.message });
+      return;
+    }
+
+    const users = SG_CORE.DB.getUsers();
+    const user = users.find(u => (u.email && u.email.toLowerCase() === idf) || (u.name && u.name.toLowerCase() === idf));
+
+    if (!user) {
+      SG_CORE.RateLimiter.recordFailure(idf);
+      SG_CORE.DB.logLogin({ email: idf, role: 'UNKNOWN', result: 'FAILED', reason: 'User not found' });
+      showToast('Email atau password salah', 'error');
+      return;
+    }
+
+    if (user.status === 'SUSPENDED') {
+      showToast('Akun Anda dinonaktifkan. Hubungi admin.', 'error');
+      SG_CORE.DB.logLogin({ email: idf, role: user.role, result: 'LOCKED', reason: 'Account suspended' });
+      return;
+    }
+
+    let isMatch = false;
+    if (user.passwordHash && user.passwordSalt) {
+      isMatch = await SG_CORE.verifyPassword(password, user.passwordHash, user.passwordSalt);
+    } else if (user.password) {
+      isMatch = (user.password === password);
+      if (isMatch) {
+        const salt = SG_CORE.generateSalt();
+        const { hash } = await SG_CORE.hashPassword(password, salt);
+        user.passwordHash = hash;
+        user.passwordSalt = salt;
+        delete user.password;
+      }
+    }
+
+    if (!isMatch) {
+      SG_CORE.RateLimiter.recordFailure(idf);
+      SG_CORE.DB.logLogin({ email: idf, role: user.role, result: 'FAILED', reason: 'Invalid password' });
+      showToast('Email atau password salah', 'error');
+      return;
+    }
+
+    SG_CORE.RateLimiter.recordSuccess(idf);
+    user.lastLogin = Date.now();
+    if (!user.brands) user.brands = [];
+    const idx = users.findIndex(u => u.id === user.id);
+    users[idx] = user;
+    SG_CORE.DB.saveUsers(users);
+
+    SG_CORE.DB.setCustomerSession({ userId: user.id });
+    SG_CORE.DB.logLogin({ email: user.email, role: user.role, result: 'SUCCESS', reason: 'Customer authenticated' });
+
+    showToast('Login berhasil!', 'success');
+    closeAuth();
+    setTimeout(() => enterApp(user), 300);
+  }
+
+  function handleLogout() {
+    if (!confirm('Yakin ingin keluar?')) return;
+    SG_CORE.DB.clearCustomerSession();
+    CURRENT_USER = null;
+    document.getElementById('member-app').classList.remove('active');
+    document.getElementById('public-site').classList.add('active');
+    window.scrollTo(0,0);
+    updateNavAuth();
+    showToast('Anda telah keluar dari akun.', 'info');
+  }
+
+  function updateNavAuth() {
+    const s = SG_CORE.DB.getCustomerSession();
+    const btn = document.getElementById('nav-login-btn');
+    if (s && s.userId) {
+      const user = SG_CORE.DB.findUserById(s.userId);
+      if (user) {
+        btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">dashboard</span><span>${user.name.split(' ')[0]}</span>`;
+        btn.onclick = () => enterApp(user);
+        return;
+      }
+    }
+    btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">login</span><span>Masuk</span>`;
+    btn.onclick = () => openAuth('login');
+  }
+
+  // ==========================================
+  // CUSTOMER DASHBOARD WORKSPACE
+  // ==========================================
+  function enterApp(user) {
+    CURRENT_USER = user;
+    document.getElementById('public-site').classList.remove('active');
+    document.getElementById('member-app').classList.add('active');
+    if (window.innerWidth < 768) document.getElementById('sidebar').style.transform = 'translateX(-100%)';
+    renderAll();
+    showPage('beranda');
+    window.scrollTo(0,0);
+  }
+
+  function renderAll() {
+    const u = CURRENT_USER;
+    if (!u) return;
+
+    const tier = SG_CORE.Services.getTier(u.points);
+    const next = SG_CORE.Services.getNextTier(u.points);
+
+    document.getElementById('side-name').textContent = u.name;
+    document.getElementById('side-tier').textContent = tier.name;
+    document.getElementById('side-avatar').textContent = (u.name || 'U')[0].toUpperCase();
+    document.getElementById('top-points').textContent = u.points || 0;
+    document.getElementById('top-balance').textContent = formatRp(u.balance || 0);
+    document.getElementById('welcome-name').textContent = u.name.split(' ')[0];
+
+    const card = document.getElementById('member-card');
+    card.className = 'card-tier tier-' + tier.cssClass + ' min-h-[200px] flex flex-col justify-between';
+    document.getElementById('card-tier-name').textContent = tier.name;
+    document.getElementById('card-id').textContent = u.id;
+    document.getElementById('card-holder').textContent = u.name.toUpperCase();
+    document.getElementById('card-since').textContent = u.memberSince || '2026';
+    document.getElementById('card-points').textContent = u.points || 0;
+
+    let pct = 100, targetTxt = 'MAX', nextName = 'MAX';
+    if (next) {
+      const start = tier.min, end = next.min;
+      pct = Math.min(100, (((u.points || 0) - start) / (end - start)) * 100);
+      targetTxt = next.min + ' Poin';
+      nextName = next.name;
+      document.getElementById('progress-label').textContent = `Butuh ${next.min - u.points} Poin lagi untuk ${next.name}`;
+    } else {
+      document.getElementById('progress-label').textContent = 'Kasta tertinggi 🎉';
+    }
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-current').textContent = (u.points || 0) + ' Poin';
+    document.getElementById('progress-target').textContent = targetTxt;
+    document.getElementById('progress-next-tier').textContent = nextName;
+
+    // Lock Info Box
+    const lockBox = document.getElementById('lock-info-box');
+    const lockedBrands = (u.brands || []).filter(b => b.lockedDuration);
+    if (lockedBrands.length > 0) {
+      lockBox.classList.remove('hidden');
+      const brandTexts = lockedBrands.map(b => `<strong>${b.name}</strong> (${SG_CORE.DURATION_LABELS[b.lockedDuration]})`).join(', ');
+      document.getElementById('lock-info-text').innerHTML =
+        `Durasi paket terkunci: ${brandTexts}. Order berikutnya untuk brand tersebut menggunakan durasi yang sama. Hubungi admin jika ingin mengubah.`;
+    } else {
+      lockBox.classList.add('hidden');
+    }
+
+    const orders = SG_CORE.DB.getOrders().filter(o => o.userId === u.id);
+    document.getElementById('stat-orders').textContent = orders.length;
+    document.getElementById('stat-balance').textContent = formatRp(u.balance || 0);
+    document.getElementById('stat-points').textContent = u.points || 0;
+    document.getElementById('stat-points-value').textContent = ((u.points || 0) * 10).toLocaleString('id-ID');
+    document.getElementById('badge-order').textContent = orders.filter(o => o.status === 'Active' || o.status === 'Processing').length;
+    document.getElementById('poin-saldo').textContent = u.points || 0;
+    document.getElementById('poin-value').textContent = formatRp((u.points || 0) * 10);
+    document.getElementById('preview-balance').textContent = formatRp(u.balance || 0);
+
+    renderKatalog();
+    renderOrders();
+    renderHistory();
+    renderTiers();
+    renderPriceTable();
+    renderBrandOptions();
+    applyLockUI();
+    populatePackageOptions();
+    updateOrderPreview();
+    renderProfile();
+    renderCustomerNotifications();
+  }
+
+  // ==========================================
+  // BRAND MANAGEMENT
+  // ==========================================
+  function applyLockUI() {
+    const u = CURRENT_USER;
+    if (!u) return;
+    const brandId = document.getElementById('order-brand').value;
+    const brand = (u.brands || []).find(b => b.id === brandId);
+    const durSel = document.getElementById('order-duration');
+    const durWrapper = document.getElementById('duration-wrapper');
+    const lockBadge = document.getElementById('duration-lock-badge');
+    const lockHint = document.getElementById('duration-lock-hint');
+    const lockNotice = document.getElementById('order-lock-notice');
+
+    durSel.disabled = false;
+    lockBadge.classList.add('hidden');
+    lockHint.classList.add('hidden');
+    lockNotice.classList.add('hidden');
+    durWrapper.classList.remove('hidden');
+
+    if (!brand) {
+      durSel.innerHTML = `
+        <option value="satuan">Satuan (1 Post)</option>
+        <option value="trial">Uji Coba (1 Post)</option>
+        <option value="weekly">Mingguan (7 Post)</option>
+        <option value="monthly" selected>Bulanan (30 Post)</option>`;
+      return;
+    }
+
+    if (brand.lockedDuration) {
+      durSel.innerHTML = `<option value="${brand.lockedDuration}" selected>${SG_CORE.DURATION_LABELS[brand.lockedDuration]} (${SG_CORE.DEFAULT_PACKAGES[0].postCounts[brand.lockedDuration]} Post)</option>`;
+      durSel.disabled = true;
+      lockBadge.classList.remove('hidden');
+      lockHint.classList.remove('hidden');
+      lockNotice.classList.remove('hidden');
+
+      const endDate = brand.endDate ? new Date(brand.endDate).toLocaleDateString('id-ID') : '-';
+      const sisaPost = (brand.totalPosts || 0) - (brand.usedPosts || 0);
+      document.getElementById('lock-notice-duration').innerHTML =
+        `${SG_CORE.DURATION_LABELS[brand.lockedDuration]} <br>
+         <span class="text-[10px] font-normal text-slate-500">
+           Aktif hingga: ${endDate} | Sisa Post: ${sisaPost}/${brand.totalPosts}
+         </span>`;
+    } else {
+      durSel.innerHTML = `
+        <option value="satuan">Satuan (1 Post)</option>
+        <option value="trial">Uji Coba (1 Post)</option>
+        <option value="weekly">Mingguan (7 Post)</option>
+        <option value="monthly" selected>Bulanan (30 Post)</option>`;
+      durSel.value = 'monthly';
+    }
+  }
+
+  function renderBrandOptions() {
+    const u = CURRENT_USER;
+    if (!u) return;
+    const sel = document.getElementById('order-brand');
+    const brands = u.brands || [];
+    sel.innerHTML = '<option value="">Pilih Brand</option>' +
+      brands.map(b => `<option value="${b.id}">${b.name}${b.username ? ' — '+b.username : ''}</option>`).join('');
+    document.getElementById('brand-count-badge').textContent = `(${brands.length}/5)`;
+    document.getElementById('brand-count-text').textContent = `(${brands.length}/5)`;
+  }
+
+  function onBrandChange() {
+    applyLockUI();
+    populatePackageOptions();
+    updateOrderPreview();
+  }
+
+  function openBrandManager() {
+    if (!CURRENT_USER) return;
+    renderBrandList();
+    document.getElementById('brand-modal').classList.add('show');
+  }
+
+  function closeBrandManager() {
+    document.getElementById('brand-modal').classList.remove('show');
+  }
+
+  function renderBrandList() {
+    const list = document.getElementById('brand-list');
+    const brands = CURRENT_USER.brands || [];
+    if (brands.length === 0) {
+      list.innerHTML = `<div class="p-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl">Belum ada brand. Tambahkan di bawah.</div>`;
+    } else {
+      list.innerHTML = brands.map(b => `
+        <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs shrink-0">${b.name[0].toUpperCase()}</div>
+            <div class="min-w-0">
+              <div class="text-slate-900 font-semibold text-sm truncate">${b.name}</div>
+              <div class="text-slate-500 text-[11px] font-mono truncate">${b.username || '—'}</div>
+            </div>
+          </div>
+          <button onclick="removeBrand('${b.id}')" class="text-slate-400 hover:text-red-500 shrink-0">
+            <span class="material-symbols-outlined text-[20px]">delete</span>
+          </button>
+        </div>`).join('');
+    }
+    document.getElementById('brand-count-text').textContent = `(${brands.length}/5)`;
+    const addBtn = document.getElementById('add-brand-btn');
+    if (brands.length >= 5) {
+      addBtn.disabled = true;
+      addBtn.className = 'w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-slate-200 text-slate-400 cursor-not-allowed';
+    } else {
+      addBtn.disabled = false;
+      addBtn.className = 'btn-primary w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2';
+    }
+  }
+
+  function addBrand() {
+    const name = document.getElementById('new-brand-name').value.trim();
+    const username = document.getElementById('new-brand-username').value.trim();
+    if (!name) return showToast('Nama brand wajib diisi', 'error');
+
+    const users = SG_CORE.DB.getUsers();
+    const idx = users.findIndex(u => u.id === CURRENT_USER.id);
+    if (idx === -1) return;
+    if (!users[idx].brands) users[idx].brands = [];
+
+    if (users[idx].brands.length >= 5) {
+      return showToast('Maksimal 5 Brand per akun.', 'error');
+    }
+
+    users[idx].brands.push({
+      id: genBrandId(),
+      name,
+      username,
+      createdAt: Date.now(),
+      lockedDuration: null,
+      startDate: null,
+      endDate: null,
+      totalPosts: 0,
+      usedPosts: 0
+    });
+    SG_CORE.DB.saveUsers(users);
+    CURRENT_USER = users[idx];
+
+    document.getElementById('new-brand-name').value = '';
+    document.getElementById('new-brand-username').value = '';
+    renderBrandList();
+    renderBrandOptions();
+    showToast('Brand berhasil ditambahkan', 'success');
+  }
+
+  function removeBrand(id) {
+    if (!confirm('Hapus brand ini?')) return;
+    const users = SG_CORE.DB.getUsers();
+    const idx = users.findIndex(u => u.id === CURRENT_USER.id);
+    if (idx === -1) return;
+    users[idx].brands = (users[idx].brands || []).filter(b => b.id !== id);
+    SG_CORE.DB.saveUsers(users);
+    CURRENT_USER = users[idx];
+    renderBrandList();
+    renderBrandOptions();
+    showToast('Brand dihapus', 'info');
+  }
+
+  // ==========================================
+  // ORDER FLOW
+  // ==========================================
+  function populatePackageOptions() {
+    const sel = document.getElementById('order-package');
+    const dur = getEffectiveDuration();
+    sel.innerHTML = '<option value="">Pilih Paket</option>' + SG_CORE.DEFAULT_PACKAGES.map(p =>
+      `<option value="${p.id}">${p.name} — ${formatRp(p.prices[dur])} / post (${p.tier})</option>`
+    ).join('');
+  }
+
+  function getEffectiveDuration() {
+    const u = CURRENT_USER;
+    const brandId = document.getElementById('order-brand')?.value;
+    const brand = (u?.brands || []).find(b => b.id === brandId);
+    if (brand && brand.lockedDuration) return brand.lockedDuration;
+    const sel = document.getElementById('order-duration');
+    return sel ? sel.value : 'monthly';
+  }
+
+  function updateOrderPreview() {
+    const pid = document.getElementById('order-package').value;
+    const dur = getEffectiveDuration();
+    const qty = parseInt(document.getElementById('order-qty').value) || 1;
+    const p = SG_CORE.DEFAULT_PACKAGES.find(x => x.id === pid);
+    const tier = SG_CORE.Services.getTier(CURRENT_USER?.points || 0);
+    const preview = document.getElementById('order-preview');
+    const warn = document.getElementById('balance-warning');
+    const bal = CURRENT_USER?.balance || 0;
+    const brandId = document.getElementById('order-brand').value;
+    const brand = (CURRENT_USER?.brands || []).find(b => b.id === brandId);
+    const brandName = brand ? brand.name : '—';
+
+    if (!p) {
+      preview.innerHTML = `
+        <div class="flex justify-between text-xs"><span class="text-slate-500">Brand:</span><span class="text-slate-900 font-mono font-semibold">${brandName}</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-500">Paket:</span><span class="text-slate-900 font-mono">—</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-500">Durasi:</span><span class="text-slate-900 font-mono">—</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-500">Harga/Post:</span><span class="text-slate-900 font-mono">—</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-500">Jumlah Post:</span><span class="text-slate-900 font-mono">—</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-500">Subtotal:</span><span class="text-slate-900 font-mono">—</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-500">Diskon Kasta:</span><span class="text-emerald-600 font-mono">—</span></div>
+        <div class="border-t border-slate-100 pt-3 flex justify-between"><span class="text-slate-500 text-sm">Total Bayar:</span><span class="text-slate-900 font-mono font-bold">—</span></div>
+        <div class="flex justify-between text-sm"><span class="text-slate-500">Poin:</span><span class="text-primary font-mono font-bold">+0</span></div>`;
+      document.getElementById('preview-remaining').textContent = formatRp(bal);
+      warn.classList.add('hidden');
+      return;
+    }
+
+    const pricePerPost = p.prices[dur];
+    const postCount = p.postCounts[dur];
+    const subtotal = pricePerPost * postCount * qty;
+    const discount = Math.floor(subtotal * (tier.discount/100));
+    const finalTotal = subtotal - discount;
+    const basePoin = Math.floor(finalTotal / 1000);
+    const earnedPoin = Math.floor(basePoin * tier.rate);
+
+    preview.innerHTML = `
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Brand:</span><span class="text-slate-900 font-mono font-semibold">${brandName}</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Paket:</span><span class="text-slate-900 font-mono font-semibold">${p.name}</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Durasi:</span><span class="text-slate-900 font-mono">${SG_CORE.DURATION_LABELS[dur]}</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Harga/Post:</span><span class="text-slate-900 font-mono">${formatRp(pricePerPost)}</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Jumlah Post:</span><span class="text-slate-900 font-mono">${postCount} × ${qty} = ${postCount * qty}</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Subtotal:</span><span class="text-slate-900 font-mono">${formatRp(subtotal)}</span></div>
+      <div class="flex justify-between text-xs"><span class="text-slate-500">Diskon Kasta (${tier.name}):</span><span class="text-emerald-600 font-mono">-${formatRp(discount)} (${tier.discount}%)</span></div>
+      <div class="border-t border-slate-100 pt-3 flex justify-between"><span class="text-slate-500 text-sm">Total Bayar:</span><span class="text-slate-900 font-mono font-bold">${formatRp(finalTotal)}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-slate-500">Poin:</span><span class="text-primary font-mono font-bold">+${earnedPoin}</span></div>`;
+
+    const remaining = bal - finalTotal;
+    const remEl = document.getElementById('preview-remaining');
+    remEl.textContent = formatRp(Math.max(0, remaining));
+    remEl.className = remaining >= 0 ? 'text-emerald-600 font-bold font-mono' : 'text-red-500 font-bold font-mono';
+    if (remaining < 0) warn.classList.remove('hidden'); else warn.classList.add('hidden');
+  }
+
+  async function handleOrder(e) {
+    e.preventDefault();
+    if (!CURRENT_USER) return;
+
+    const brandId = document.getElementById('order-brand').value;
+    const brand = (CURRENT_USER.brands || []).find(b => b.id === brandId);
+    if (!brand) return showToast('Pilih brand terlebih dahulu', 'error');
+
+    const pid = document.getElementById('order-package').value;
+    const dur = getEffectiveDuration();
+    const qty = parseInt(document.getElementById('order-qty').value) || 1;
+    const platform = document.getElementById('order-platform').value;
+    const target = document.getElementById('order-target').value.trim();
+    const notes = document.getElementById('order-notes').value.trim();
+
+    try {
+      const res = await SG_CORE.Services.placeOrder({
+        userId: CURRENT_USER.id,
+        brandId,
+        packageId: pid,
+        duration: dur,
+        qty,
+        platform,
+        targetUrl: target,
+        notes
+      });
+
+      CURRENT_USER = SG_CORE.DB.findUserById(CURRENT_USER.id);
+      const pkg = SG_CORE.DEFAULT_PACKAGES.find(p => p.id === pid);
+
+      const waMsg = buildWhatsAppMessage(pkg, dur, qty, platform, target, res.order.total, res.order.id, brand.name);
+      pendingWA = { message: waMsg, orderId: res.order.id, total: res.order.total, pkg: pkg.name + ' (' + SG_CORE.DURATION_LABELS[dur] + ')', brand: brand.name };
+
+      document.getElementById('success-order-id').textContent = res.order.id;
+      document.getElementById('success-brand').textContent = brand.name;
+      document.getElementById('success-pkg').textContent = pkg.name + ' · ' + SG_CORE.DURATION_LABELS[dur];
+      document.getElementById('success-total').textContent = formatRp(res.order.total);
+      document.getElementById('order-success-modal').classList.add('show');
+
+      renderAll();
+    } catch (err) {
+      showToast(err.message || 'Gagal memproses order', 'error');
+    }
+  }
+
+  function buildWhatsAppMessage(pkg, duration, qty, platform, target, total, orderId, brandName) {
+    const m = pkg.metrics[duration] || pkg.metrics.trial;
+    const postCount = pkg.postCounts[duration];
+    const durLabel = SG_CORE.DURATION_LABELS[duration];
+    let parts = [];
+    if (m.views) parts.push(`${m.views.toLocaleString('id-ID')} Views`);
+    if (m.likes) parts.push(`${m.likes.toLocaleString('id-ID')} Likes`);
+    if (m.comments) parts.push(`${m.comments} Komen`);
+    if (m.shares) parts.push(`${m.shares} Share`);
+    if (m.saves) parts.push(`${m.saves} Save`);
+    const detailLine = parts.join(' + ');
+
+    return `Halo Solvient Growth, saya ingin memesan:\n\n🏷️ Brand: ${brandName}\n📦 Program: LEVEL 0${pkg.level} - ${pkg.name} (${durLabel})\n📝 Detail per Post: ${detailLine}\n🔢 Jumlah Post: ${postCount * qty}\n💰 Investasi: ${formatRp(total)}\n📱 Platform: ${platform}\n🔗 Link: ${target}\n🆔 Order ID: ${orderId}\n\nMohon info rekening/QRIS. Terima kasih!`;
+  }
+
+  function redirectToWhatsApp() {
+    if (!pendingWA) return;
+    const cms = SG_CORE.DB.getCms();
+    const waNum = cms.contact?.waNumber || '6285113286696';
+    window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(pendingWA.message)}`, '_blank');
+    document.getElementById('order-success-modal').classList.remove('show');
+    pendingWA = null;
+    showPage('status');
+    showToast('Order tercatat dalam sistem.', 'success');
+  }
+
+  // ==========================================
+  // TOP-UP LOGIC
+  // ==========================================
+  function selectAmount(amount, evt) {
+    selectedAmount = amount;
+    selectedRule = SG_CORE.Services.getTopupRule(amount);
+    selectedBonus = Math.floor(amount * selectedRule.bonusPct / 100);
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+    if (evt && evt.currentTarget) evt.currentTarget.classList.add('selected');
+    document.getElementById('custom-amount').value = '';
+    updateTopupSummary();
+  }
+
+  function onCustomAmount() {
+    const val = parseInt(document.getElementById('custom-amount').value) || 0;
+    selectedAmount = val;
+    selectedRule = SG_CORE.Services.getTopupRule(val);
+    selectedBonus = Math.floor(val * selectedRule.bonusPct / 100);
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+    updateTopupSummary();
+  }
+
+  function updateTopupSummary() {
+    const nominal = selectedAmount;
+    const bonus = selectedBonus;
+    const admin = selectedRule.admin;
+    const totalPay = nominal + admin;
+    const totalBalance = nominal + bonus;
+
+    document.getElementById('sum-nominal').textContent = formatRp(nominal);
+    document.getElementById('sum-bonus').textContent = bonus > 0 ? '+ '+formatRp(bonus) : 'Rp 0';
+    document.getElementById('sum-admin').textContent = admin > 0 ? formatRp(admin) : 'Gratis';
+    document.getElementById('sum-pay').textContent = formatRp(totalPay);
+    document.getElementById('sum-total').textContent = formatRp(totalBalance);
+
+    if (nominal > 0) {
+      document.getElementById('qris-total').textContent = formatRp(totalPay);
+      const qrisData = `SOLVIENT-${CURRENT_USER?.id || 'GUEST'}-${nominal}-${Date.now()}`;
+      document.getElementById('qris-id').textContent = qrisData.slice(-12);
+      const btn = document.getElementById('confirm-topup-btn');
+      btn.disabled = false;
+      btn.className = 'w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 btn-primary';
+    } else {
+      document.getElementById('qris-total').textContent = 'Rp 0';
+      document.getElementById('qris-id').textContent = '—';
+      const btn = document.getElementById('confirm-topup-btn');
+      btn.disabled = true;
+      btn.className = 'w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-slate-200 text-slate-400 cursor-not-allowed';
+    }
+  }
+
+  function confirmTopup() {
+    if (selectedAmount <= 0) return;
+    const admin = selectedRule.admin;
+    const bonus = selectedBonus;
+    const totalPay = selectedAmount + admin;
+    const totalBalance = selectedAmount + bonus;
+    const topupId = 'TU-' + Date.now().toString().slice(-6);
+
+    const topups = SG_CORE.DB.getTopups();
+    topups.unshift({
+      id: topupId,
+      userId: CURRENT_USER.id,
+      userName: CURRENT_USER.name,
+      amount: selectedAmount,
+      bonus,
+      admin,
+      total: totalBalance,
+      paid: totalPay,
+      method: 'QRIS',
+      status: 'Menunggu Verifikasi',
+      date: Date.now()
+    });
+    SG_CORE.DB.saveTopups(topups);
+
+    SG_CORE.DB.createNotification({
+      userId: CURRENT_USER.id,
+      title: 'Permintaan Top-Up Terkirim ⏳',
+      message: `Permintaan top-up ${topupId} senilai ${formatRp(totalPay)} sedang menunggu verifikasi admin.`,
+      type: 'info'
+    });
+
+    document.getElementById('pending-topup-id').textContent = topupId;
+    document.getElementById('pending-topup-pay').textContent = formatRp(totalPay);
+    document.getElementById('pending-topup-total').textContent = formatRp(totalBalance);
+    document.getElementById('topup-success-modal').classList.add('show');
+    showToast('Permintaan top-up dikirim. Menunggu verifikasi admin.', 'info');
+  }
+
+  function closeTopupSuccess() {
+    document.getElementById('topup-success-modal').classList.remove('show');
+    selectedAmount = 0; selectedBonus = 0; selectedRule = { admin:0, bonusPct:0 };
+    document.getElementById('custom-amount').value = '';
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+    updateTopupSummary();
+    renderAll();
+    showPage('riwayat');
+  }
+
+  // ==========================================
+  // PROFILE & NOTIFICATIONS
+  // ==========================================
+  function renderProfile() {
+    if (!CURRENT_USER) return;
+    const u = CURRENT_USER;
+    document.getElementById('prof-id').textContent = u.id;
+    document.getElementById('prof-name').textContent = u.name;
+    document.getElementById('prof-email').textContent = u.email;
+    document.getElementById('prof-phone').textContent = u.phone || '-';
+    document.getElementById('prof-tier').textContent = u.tier;
+    document.getElementById('prof-since').textContent = u.memberSince || '2026';
+  }
+
+  async function handleCustomerChangePassword(e) {
+    e.preventDefault();
+    if (!CURRENT_USER) return;
+    const cur = document.getElementById('cust-cur-pass').value;
+    const next = document.getElementById('cust-new-pass').value;
+
+    const isMatch = await SG_CORE.verifyPassword(cur, CURRENT_USER.passwordHash, CURRENT_USER.passwordSalt);
+    if (!isMatch) return showToast('Kata sandi saat ini tidak valid', 'error');
+
+    const salt = SG_CORE.generateSalt();
+    const { hash } = await SG_CORE.hashPassword(next, salt);
+    CURRENT_USER.passwordHash = hash;
+    CURRENT_USER.passwordSalt = salt;
+
+    const users = SG_CORE.DB.getUsers();
+    const idx = users.findIndex(u => u.id === CURRENT_USER.id);
+    if (idx !== -1) { users[idx] = CURRENT_USER; SG_CORE.DB.saveUsers(users); }
+
+    document.getElementById('cust-cur-pass').value = '';
+    document.getElementById('cust-new-pass').value = '';
+    showToast('Kata sandi berhasil diperbarui!', 'success');
+  }
+
+  function renderCustomerNotifications() {
+    if (!CURRENT_USER) return;
+    const notes = SG_CORE.DB.getUserNotifications(CURRENT_USER.id);
+    const badge = document.getElementById('badge-notif');
+    const topBadge = document.getElementById('top-badge-notif');
+    const unread = notes.filter(n => !n.read).length;
+
+    if (unread > 0) {
+      badge.textContent = unread;
+      badge.classList.remove('hidden');
+      topBadge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+      topBadge.classList.add('hidden');
+    }
+
+    const list = document.getElementById('customer-notif-list');
+    if (!list) return;
+    if (notes.length === 0) {
+      list.innerHTML = `<div class="bg-white rounded-2xl p-8 text-center text-xs text-slate-400 border border-slate-200">Belum ada notifikasi baru.</div>`;
+      return;
+    }
+    list.innerHTML = notes.map(n => `
+      <div class="bg-white rounded-2xl p-4 border border-slate-200 flex items-start gap-3">
+        <span class="material-symbols-outlined ${n.type==='success'?'text-emerald-500':n.type==='error'?'text-red-500':'text-primary'} text-2xl mt-0.5">
+          ${n.type==='success'?'check_circle':n.type==='error'?'error':'info'}
+        </span>
+        <div class="flex-1 min-w-0 text-xs">
+          <div class="text-slate-900 font-bold text-sm">${n.title}</div>
+          <div class="text-slate-600 mt-1 leading-relaxed">${n.message}</div>
+          <div class="text-slate-400 font-mono text-[10px] mt-1.5">${new Date(n.date).toLocaleString('id-ID')}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ==========================================
+  // VIEW RENDERERS (Orders, History, Tiers)
+  // ==========================================
+  function renderKatalog() {
+    const grid = document.getElementById('katalog-grid');
+    grid.innerHTML = SG_CORE.DEFAULT_PACKAGES.map(p => {
+      const price = p.prices[currentDuration];
+      const m = p.metrics[currentDuration] || p.metrics.trial;
+      return `
+        <div class="glass-panel rounded-2xl p-5 flex flex-col">
+          <div class="flex justify-between mb-2">
+            <div class="text-xs font-mono text-primary font-bold">LEVEL 0${p.level}</div>
+            ${p.popular?'<span class="text-[10px] px-2 py-0.5 rounded-full bg-primary text-white font-bold">POPULER</span>':''}
+          </div>
+          <h3 class="text-slate-900 font-bold text-base mb-1">${p.name}</h3>
+          <div class="text-[10px] font-mono text-slate-500 uppercase mb-3">${p.tier}</div>
+          <ul class="space-y-1 text-xs text-slate-500 flex-1 mb-3">
+            <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-[14px]">check</span>${m.views.toLocaleString('id-ID')} views</li>
+            <li class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary text-[14px]">check</span>${m.likes.toLocaleString('id-ID')} likes</li>
+          </ul>
+          <div class="border-t border-slate-100 pt-3">
+            <div class="text-slate-900 font-extrabold font-mono text-lg">${formatRp(price)}<span class="text-xs text-slate-500">/post</span></div>
+            <button onclick="quickOrder('${p.id}')" class="mt-3 w-full btn-primary py-2.5 rounded-lg text-xs font-bold">ORDER</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function quickOrder(id) {
+    showPage('order');
+    setTimeout(() => {
+      document.getElementById('order-package').value = id;
+      updateOrderPreview();
+    }, 100);
+  }
+
+  function renderOrders() {
+    const list = document.getElementById('order-list');
+    const orders = SG_CORE.DB.getOrders().filter(o => o.userId === CURRENT_USER.id);
+    if (orders.length === 0) {
+      list.innerHTML = `<div class="bg-white rounded-2xl p-10 text-center border border-slate-200">
+        <span class="material-symbols-outlined text-5xl text-slate-300">inbox</span>
+        <p class="text-slate-500 text-sm mt-3">Belum ada order.</p>
+        <button onclick="showPage('order')" class="btn-primary mt-4 px-5 py-2.5 rounded-lg text-sm font-bold">BUAT ORDER</button>
+      </div>`;
+      return;
+    }
+    list.innerHTML = orders.map(o => {
+      const statusColor = o.status === 'Active' ? 'bg-blue-100 text-blue-700' : o.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700';
+      return `
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 flex flex-wrap items-center gap-4 justify-between">
+        <div class="flex-1 min-w-[200px]">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span class="text-slate-900 font-bold">${o.service}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full font-mono ${statusColor}">${o.status}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full font-mono bg-slate-100 text-slate-600">${SG_CORE.DURATION_LABELS[o.duration] || o.duration}</span>
+          </div>
+          <div class="text-xs text-slate-500 font-mono">${o.id} · ${o.platform} · ${o.qty}x · ${new Date(o.date).toLocaleDateString('id-ID')}</div>
+          ${o.brandName ? `<div class="text-[11px] text-slate-500 mt-1">🏷️ ${o.brandName}</div>` : ''}
+          <div class="text-[11px] text-slate-400 mt-0.5 truncate max-w-xs">${o.target}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-slate-900 font-mono font-bold">${formatRp(o.total)}</div>
+          <div class="text-[11px] text-primary font-mono">+${o.pointsEarned} Poin</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('history-list');
+    const topups = SG_CORE.DB.getTopups().filter(t => t.userId === CURRENT_USER.id).map(t => ({...t, kind:'TOPUP'}));
+    const orders = SG_CORE.DB.getOrders().filter(o => o.userId === CURRENT_USER.id).map(o => ({...o, kind:'ORDER'}));
+    const ledger = SG_CORE.DB.getLedger().filter(l => l.userId === CURRENT_USER.id).map(l => ({...l, kind:'LEDGER'}));
+
+    const all = [...topups, ...orders, ...ledger.filter(l => l.category === 'ADJUSTMENT')].sort((a,b) => b.date - a.date);
+    if (all.length === 0) {
+      list.innerHTML = `<div class="bg-white rounded-2xl p-10 text-center border border-slate-200">
+        <span class="material-symbols-outlined text-5xl text-slate-300">history</span>
+        <p class="text-slate-500 text-sm mt-3">Belum ada transaksi.</p>
+      </div>`;
+      return;
+    }
+
+    list.innerHTML = all.map(t => {
+      const isTopup = t.kind === 'TOPUP';
+      const isAdjustment = t.kind === 'LEDGER';
+      const isPending = isTopup && t.status === 'Menunggu Verifikasi';
+      const isSuccess = isTopup && (t.status === 'Disetujui' || t.status === 'Verified');
+      const isRejected = isTopup && t.status === 'Ditolak';
+
+      let title = isTopup ? 'Top-Up Saldo' : isAdjustment ? `Penyesuaian Saldo: ${t.description}` : `Order ${t.service}`;
+      let amountTxt = isTopup ? `${isPending ? '?' : '+'} ${formatRp(t.total)}` : isAdjustment ? `${t.type === 'CREDIT' ? '+' : '-'} ${formatRp(t.amount)}` : `- ${formatRp(t.total)}`;
+      let amountColor = isTopup ? (isPending ? 'text-amber-600' : isRejected ? 'text-red-500' : 'text-emerald-600') : isAdjustment ? (t.type === 'CREDIT' ? 'text-emerald-600' : 'text-red-500') : 'text-slate-900';
+
+      let statusBadge = isTopup ? (
+        isPending ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-mono bg-amber-100 text-amber-700">⏳ Menunggu Verifikasi</span>' :
+        isRejected ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-mono bg-red-100 text-red-700">❌ Ditolak</span>' :
+        '<span class="text-[10px] px-2 py-0.5 rounded-full font-mono bg-emerald-100 text-emerald-700">✅ Terverifikasi</span>'
+      ) : '';
+
+      return `
+        <div class="bg-white rounded-2xl p-4 border ${isPending ? 'border-amber-200 bg-amber-50/20' : 'border-slate-200'} flex items-center justify-between gap-3 font-mono">
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="w-10 h-10 rounded-xl ${isTopup ? 'bg-emerald-100 text-emerald-600' : isAdjustment ? 'bg-purple-100 text-purple-600' : 'bg-primary/10 text-primary'} flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[20px]">${isTopup ? 'add_card' : isAdjustment ? 'account_balance_wallet' : 'shopping_bag'}</span>
+            </div>
+            <div class="min-w-0">
+              <div class="text-slate-900 font-semibold text-sm truncate font-sans">${title}</div>
+              <div class="text-[11px] text-slate-500">${t.id} · ${new Date(t.date).toLocaleString('id-ID')}</div>
+              ${statusBadge ? `<div class="mt-1">${statusBadge}</div>` : ''}
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="${amountColor} font-bold">${amountTxt}</div>
+            <div class="text-[11px] text-slate-500">${t.pointsEarned ? '+'+t.pointsEarned+' Poin' : ''}</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderTiers() {
+    const grid = document.getElementById('tier-grid');
+    grid.innerHTML = SG_CORE.TIERS.map(t => {
+      const active = CURRENT_USER.tier === t.name;
+      return `
+        <div class="card-tier tier-${t.cssClass} ${active?'ring-2 ring-primary':''}">
+          <div class="relative z-10">
+            <div class="text-3xl mb-2">${t.icon}</div>
+            <div class="text-slate-900 font-extrabold text-lg">${t.name}</div>
+            <div class="text-slate-700/70 text-[11px] font-mono mt-0.5">${t.min.toLocaleString('id-ID')}${t.max===Infinity?'+':' – '+t.max.toLocaleString('id-ID')} Poin</div>
+            <div class="text-slate-800/90 text-xs mt-3 leading-relaxed">${t.desc}</div>
+            <div class="mt-4 pt-3 border-t border-black/10 space-y-1 text-[11px] text-slate-800/80 font-mono">
+              <div>• Rate: <b>${t.rate}x Poin</b></div>
+              <div>• Diskon: <b>${t.discount}%</b></div>
+            </div>
+            ${active?'<div class="mt-3 text-[10px] font-bold bg-black/20 px-2 py-1 rounded-full text-center text-slate-900">KASTA ANDA</div>':''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderPriceTable() {
+    const tb = document.getElementById('price-table');
+    tb.innerHTML = SG_CORE.DEFAULT_PACKAGES.map(p => `
+      <tr class="hover:bg-slate-50">
+        <td class="p-4 font-bold text-slate-900">${p.name}</td>
+        <td class="p-4 text-slate-500 font-mono text-xs">${p.tier}</td>
+        <td class="p-4 text-slate-900 font-mono">${formatRp(p.prices.satuan)}</td>
+        <td class="p-4 text-slate-900 font-mono">${formatRp(p.prices.trial)}</td>
+        <td class="p-4 text-slate-900 font-mono">${formatRp(p.prices.weekly)}</td>
+        <td class="p-4 text-primary font-mono font-bold">${formatRp(p.prices.monthly)}</td>
+      </tr>`).join('');
+  }
+
+  // ==========================================
+  // NAVIGATION & UI
+  // ==========================================
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const page = document.getElementById('page-' + name);
+    if (page) page.classList.add('active');
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.toggle('active', l.dataset.page === name));
+    if (window.innerWidth < 768) document.getElementById('sidebar').style.transform = 'translateX(-100%)';
+    window.scrollTo({ top: 0, behavior:'smooth' });
+
+    if (name === 'profile') renderProfile();
+    if (name === 'notif') renderCustomerNotifications();
+  }
+
+  function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const cur = sb.style.transform;
+    sb.style.transform = (cur === 'translateX(-100%)' || cur === '') ? 'translateX(0)' : 'translateX(-100%)';
+  }
+
+  function toggleMobileMenu() {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  }
+
+  function requireLoginOrOrder(name, desc, price, pkgId) {
+    if (!CURRENT_USER) {
+      openAuth('login');
+      showToast('Silakan login/daftar untuk order', 'info');
+      sessionStorage.setItem('sg_intent', JSON.stringify({ name, desc, price, pkgId }));
+      return;
+    }
+    if (pkgId) {
+      enterApp(CURRENT_USER);
+      setTimeout(() => {
+        showPage('order');
+        document.getElementById('order-package').value = pkgId;
+        updateOrderPreview();
+      }, 200);
+    }
+  }
+
+  function renderCmsContent() {
+    const cms = SG_CORE.DB.getCms();
+    // Flash Deal
+    const fdSection = document.getElementById('flash-deal-section');
+    if (cms.flashDeal?.enabled === false) {
+      fdSection.classList.add('hidden');
+    } else {
+      fdSection.classList.remove('hidden');
+      document.getElementById('fd-title').innerHTML = cms.flashDeal.title || '🔥 FLASH GROWTH DEAL';
+      document.getElementById('fd-features').textContent = cms.flashDeal.features || '';
+      document.getElementById('fd-normal-price').textContent = formatRp(cms.flashDeal.normalPrice || 85000);
+      document.getElementById('fd-promo-price').textContent = formatRp(cms.flashDeal.promoPrice || 49000);
+    }
+
+    // FAQs
+    const faqContainer = document.getElementById('faq-accordion-list');
+    faqContainer.innerHTML = (cms.faqs || []).map((f, idx) => `
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        <button class="faq-btn w-full p-5 text-left flex justify-between items-center text-slate-900 font-semibold">
+          <div class="flex items-center gap-4"><span class="text-primary font-mono text-sm">0${idx+1}</span><span>${f.q}</span></div>
+          <span class="material-symbols-outlined faq-icon text-slate-400 text-xl">expand_more</span>
+        </button>
+        <div class="faq-answer px-5 pb-5 text-slate-600 text-sm leading-relaxed pl-14">${f.a}</div>
+      </div>
+    `).join('');
+
+    // Reattach accordion
+    document.querySelectorAll('.faq-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const answer = btn.nextElementSibling;
+        const icon = btn.querySelector('.faq-icon');
+        const isActive = answer.classList.contains('active');
+        document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('active'));
+        document.querySelectorAll('.faq-icon').forEach(i => i.classList.remove('active'));
+        if (!isActive) { answer.classList.add('active'); icon.classList.add('active'); }
+      });
+    });
+
+    // Contact info
+    if (cms.contact) {
+      const waDisplay = cms.contact.waDisplay || '+62 851-1328-6696';
+      const waLink = `https://wa.me/${cms.contact.waNumber || '6285113286696'}`;
+      document.getElementById('footer-wa').textContent = `WhatsApp: ${waDisplay}`;
+      document.getElementById('footer-hours').textContent = cms.contact.operationalHours || 'Senin – Sabtu, 08.00 – 22.00 WIB';
+      document.getElementById('floating-wa-btn').href = waLink;
+      const sWa = document.getElementById('support-wa-link');
+      if (sWa) sWa.href = waLink;
+      const sWaDisp = document.getElementById('support-wa-display');
+      if (sWaDisp) sWaDisp.textContent = waDisplay;
+    }
+  }
+
+  // ==========================================
+  // TIMER
+  // ==========================================
+  function runTimer() {
+    const hEl = document.getElementById('timer-hours');
+    if (!hEl) return;
+    let h = parseInt(hEl.innerText), m = parseInt(document.getElementById('timer-minutes').innerText), s = parseInt(document.getElementById('timer-seconds').innerText);
+    if (s > 0) s--;
+    else if (m > 0) { m--; s = 59; }
+    else if (h > 0) { h--; m = 59; s = 59; }
+    else { h = 3; m = 45; s = 12; }
+    hEl.innerText = String(h).padStart(2,'0');
+    document.getElementById('timer-minutes').innerText = String(m).padStart(2,'0');
+    document.getElementById('timer-seconds').innerText = String(s).padStart(2,'0');
+  }
+  setInterval(runTimer, 1000);
+
+  // ==========================================
+  // EVENT LISTENERS & INITIALIZATION
+  // ==========================================
+  document.addEventListener('input', e => {
+    if (e.target.id === 'order-qty') updateOrderPreview();
+  });
+  document.addEventListener('change', e => {
+    if (['order-package','order-duration','order-platform','order-brand'].includes(e.target.id)) {
+      if (e.target.id === 'order-duration') populatePackageOptions();
+      updateOrderPreview();
+    }
+  });
+
+  document.querySelectorAll('.sidebar-link').forEach(l => {
+    l.addEventListener('click', () => {
+      if (l.dataset.page) showPage(l.dataset.page);
+    });
+  });
+
+  document.getElementById('auth-modal').addEventListener('click', e => { if (e.target.id === 'auth-modal') closeAuth(); });
+  document.getElementById('brand-modal').addEventListener('click', e => { if (e.target.id === 'brand-modal') closeBrandManager(); });
+  document.getElementById('topup-success-modal').addEventListener('click', e => { if (e.target.id === 'topup-success-modal') closeTopupSuccess(); });
+
+  window.addEventListener('load', () => {
+    SG_CORE.init().then(() => {
+      renderPackages();
+      renderCompareTable();
+      renderCmsContent();
+      updateNavAuth();
+
+      // Check session
+      const s = SG_CORE.DB.getCustomerSession();
+      if (s && s.userId) {
+        const user = SG_CORE.DB.findUserById(s.userId);
+        if (user && user.role === SG_CORE.ROLES.CUSTOMER) {
+          enterApp(user);
+        }
+      }
+
+      // Check intent
+      const intent = sessionStorage.getItem('sg_intent');
+      if (intent && CURRENT_USER) {
+        try {
+          const data = JSON.parse(intent);
+          sessionStorage.removeItem('sg_intent');
+          setTimeout(() => requireLoginOrOrder(data.name, data.desc, data.price, data.pkgId), 800);
+        } catch(e) {}
+      }
+    });
+  });
+
+  // Global exports
+  window.openAuth = openAuth;
+  window.closeAuth = closeAuth;
+  window.switchAuthTab = switchAuthTab;
+  window.handleLogin = handleLogin;
+  window.handleRegister = handleRegister;
+  window.handleLogout = handleLogout;
+  window.changeDuration = changeDuration;
+  window.toggleMobileMenu = toggleMobileMenu;
+  window.requireLoginOrOrder = requireLoginOrOrder;
+  window.showPage = showPage;
+  window.toggleSidebar = toggleSidebar;
+  window.quickOrder = quickOrder;
+  window.handleOrder = handleOrder;
+  window.updateOrderPreview = updateOrderPreview;
+  window.redirectToWhatsApp = redirectToWhatsApp;
+  window.selectAmount = selectAmount;
+  window.onCustomAmount = onCustomAmount;
+  window.confirmTopup = confirmTopup;
+  window.closeTopupSuccess = closeTopupSuccess;
+  window.openBrandManager = openBrandManager;
+  window.closeBrandManager = closeBrandManager;
+  window.addBrand = addBrand;
+  window.removeBrand = removeBrand;
+  window.onBrandChange = onBrandChange;
+  window.handleCustomerChangePassword = handleCustomerChangePassword;
+
+})();
+</script>
+</body>
+</html>

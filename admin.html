@@ -1,0 +1,2411 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Portal — Solvient Growth Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        admin: {
+          bg: "#0B1120",
+          card: "#131C31",
+          border: "#1E293B",
+          accent: "#3B82F6",
+          hover: "#2563EB"
+        }
+      },
+      fontFamily: {
+        sans: ["'Plus Jakarta Sans'", "sans-serif"],
+        mono: ["'JetBrains Mono'", "monospace"]
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { background: #0B1120; color: #F8FAFC; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+  .admin-panel { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+  .admin-dark-card { background: #131C31; border: 1px solid #1E293B; border-radius: 16px; }
+  .btn-admin { background: #3B82F6; color: #FFF; transition: .25s; cursor: pointer; font-weight: 600; }
+  .btn-admin:hover { background: #2563EB; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(59,130,246,0.4); }
+  .btn-admin-danger { background: #EF4444; color: #FFF; transition: .2s; }
+  .btn-admin-danger:hover { background: #DC2626; }
+  .btn-admin-secondary { background: #1E293B; border: 1px solid #334155; color: #E2E8F0; transition: .2s; }
+  .btn-admin-secondary:hover { background: #334155; color: #FFF; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; color: #94A3B8; cursor: pointer; transition: .2s; }
+  .nav-item:hover { background: rgba(59,130,246,0.1); color: #60A5FA; }
+  .nav-item.active { background: #1E293B; color: #38BDF8; font-weight: 600; border-left: 3px solid #38BDF8; }
+  .nav-item .material-symbols-outlined { font-size: 20px; }
+  .view-pane { display: none; }
+  .view-pane.active { display: block; animation: fadeIn .25s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(11, 17, 32, 0.75); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .admin-toast { position: fixed; top: 24px; right: 24px; z-index: 250; padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.4); opacity: 0; transform: translateY(-10px); transition: .3s; pointer-events: none; max-width: 90vw; }
+  .admin-toast.show { opacity: 1; transform: translateY(0); }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+</style>
+</head>
+<body class="antialiased text-slate-100 min-h-screen">
+
+<!-- =========================================================== -->
+<!-- SECTION: ADMIN LOGIN SCREEN (Unauthenticated)               -->
+<!-- =========================================================== -->
+<div id="screen-login" class="view-pane min-h-screen flex items-center justify-center p-4 relative">
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-[140px]"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-[140px]"></div>
+  </div>
+
+  <div class="w-full max-w-md relative z-10">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mb-4 shadow-xl">
+        <span class="material-symbols-outlined text-3xl">shield</span>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-white">ADMIN PORTAL</h1>
+      <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">Secure Administration — Solvient Growth</p>
+    </div>
+
+    <!-- Alert for First Setup if needed -->
+    <div id="login-setup-alert" class="hidden mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">info</span>
+        <span>Belum ada SUPER_ADMIN terdaftar.</span>
+      </div>
+      <button onclick="navigateRoute('setup')" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 text-xs transition-colors">
+        Setup Sekarang
+      </button>
+    </div>
+
+    <div class="admin-dark-card p-8 shadow-2xl backdrop-blur-md">
+      <form onsubmit="handleAdminLogin(event)" class="space-y-5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 font-mono">Admin Email / Username</label>
+          <div class="relative">
+            <input type="text" id="admin-login-id" required placeholder="admin@solvientgrowth.com" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 pl-11 outline-none"/>
+            <span class="material-symbols-outlined absolute left-3.5 top-3 text-slate-500 text-xl">person</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Password</label>
+            <button type="button" onclick="openForgotPasswordModal()" class="text-xs text-blue-400 hover:text-blue-300">Lupa Password?</button>
+          </div>
+          <div class="relative">
+            <input type="password" id="admin-login-pass" required placeholder="••••••••••••" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 pl-11 pr-11 outline-none"/>
+            <span class="material-symbols-outlined absolute left-3.5 top-3 text-slate-500 text-xl">key</span>
+            <button type="button" onclick="togglePassVisibility('admin-login-pass', this)" class="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300">
+              <span class="material-symbols-outlined text-xl">visibility</span>
+            </button>
+          </div>
+        </div>
+        <button type="submit" id="btn-submit-login" class="w-full btn-admin py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg">
+          <span class="material-symbols-outlined text-[18px]">lock_open</span>
+          <span>SIGN IN TO PORTAL</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="mt-8 text-center text-xs text-slate-500">
+      <span>Perlu akses publik? </span>
+      <a href="index.html" class="text-blue-400 hover:underline">Kembali ke Website Utama</a>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- SECTION: FIRST ADMIN SETUP SCREEN                           -->
+<!-- =========================================================== -->
+<div id="screen-setup" class="view-pane min-h-screen flex items-center justify-center p-4 relative">
+  <div class="w-full max-w-lg relative z-10">
+    <!-- If locked because Super Admin already exists -->
+    <div id="setup-locked-view" class="hidden admin-dark-card p-8 text-center border-red-500/30">
+      <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4">
+        <span class="material-symbols-outlined text-3xl">gpp_bad</span>
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">403 Forbidden — Setup Dikunci</h2>
+      <p class="text-xs text-slate-400 mb-6 leading-relaxed">
+        Sistem telah memiliki SUPER_ADMIN. Pembuatan akun administrator baru harus dilakukan melalui dashboard administrator yang berwenang.
+      </p>
+      <button onclick="navigateRoute('login')" class="btn-admin px-6 py-3 rounded-xl text-xs font-bold">
+        Kembali ke Login Admin
+      </button>
+    </div>
+
+    <!-- Setup Form View -->
+    <div id="setup-form-view" class="admin-dark-card p-8 shadow-2xl">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-3">
+          <span class="material-symbols-outlined text-2xl">build_circle</span>
+        </div>
+        <h2 class="text-2xl font-extrabold text-white">First Admin Setup</h2>
+        <p class="text-xs text-slate-400 mt-1">Inisialisasi akun SUPER_ADMIN pertama secara aman.</p>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs mb-6">
+        🔒 <strong>Catatan Keamanan:</strong> Halaman ini akan terkunci secara permanen otomatis setelah Super Admin pertama dibuat.
+      </div>
+
+      <form onsubmit="handleFirstAdminSetup(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 font-mono">Nama Lengkap Administrator *</label>
+          <input type="text" id="setup-name" required placeholder="Super Administrator" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 font-mono">Email Resmi *</label>
+          <input type="email" id="setup-email" required placeholder="superadmin@solvientgrowth.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 font-mono">No. WhatsApp / Telepon *</label>
+          <input type="tel" id="setup-phone" required placeholder="081234567890" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 font-mono">Master Password (min. 8 karakter) *</label>
+          <input type="password" id="setup-password" required minlength="8" placeholder="••••••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 font-mono">Konfirmasi Password *</label>
+          <input type="password" id="setup-password-confirm" required minlength="8" placeholder="••••••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500"/>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="w-full btn-admin py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">verified_user</span>
+            <span>BUAT SUPER ADMIN &amp; KUNCI SETUP</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- SECTION: AUTHENTICATED ADMIN APPLICATION (Full Workspace)   -->
+<!-- =========================================================== -->
+<div id="screen-app" class="view-pane min-h-screen flex bg-slate-950 text-slate-100">
+
+  <!-- ADMIN SIDEBAR -->
+  <aside id="admin-sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-slate-900 border-r border-slate-800 z-50 flex flex-col transition-transform duration-300">
+    <!-- Branding Header -->
+    <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+        <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="font-extrabold text-white text-sm tracking-tight truncate">SOLVIENT <span class="text-blue-400">ADMIN</span></div>
+        <div id="admin-badge-role" class="text-[10px] text-amber-400 font-mono tracking-wider font-bold">SUPER_ADMIN</div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+      <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 pt-2 pb-1">Overview</div>
+      <a class="nav-item" data-route="dashboard" onclick="navigateRoute('dashboard')">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>Dashboard</span>
+      </a>
+
+      <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 pt-3 pb-1">Customers</div>
+      <a class="nav-item" data-route="customers" onclick="navigateRoute('customers')">
+        <span class="material-symbols-outlined">group</span>
+        <span>Customers</span>
+      </a>
+      <a class="nav-item" data-route="brands" onclick="navigateRoute('brands')">
+        <span class="material-symbols-outlined">sell</span>
+        <span>Status Brand</span>
+      </a>
+
+      <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 pt-3 pb-1">Business</div>
+      <a class="nav-item" data-route="topups" onclick="navigateRoute('topups')">
+        <span class="material-symbols-outlined">payments</span>
+        <span>Verifikasi Top-Up</span>
+        <span id="sidebar-pending-topup-badge" class="hidden ml-auto text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded-full">0</span>
+      </a>
+      <a class="nav-item" data-route="orders" onclick="navigateRoute('orders')">
+        <span class="material-symbols-outlined">shopping_bag</span>
+        <span>Orders</span>
+      </a>
+      <a class="nav-item" data-route="packages" onclick="navigateRoute('packages')">
+        <span class="material-symbols-outlined">inventory_2</span>
+        <span>Packages</span>
+      </a>
+      <a class="nav-item" data-route="payments" onclick="navigateRoute('payments')">
+        <span class="material-symbols-outlined">account_balance</span>
+        <span>Ledger &amp; Payments</span>
+      </a>
+
+      <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 pt-3 pb-1">Membership</div>
+      <a class="nav-item" data-route="membership" onclick="navigateRoute('membership')">
+        <span class="material-symbols-outlined">military_tech</span>
+        <span>Tiers &amp; Rules</span>
+      </a>
+      <a class="nav-item" data-route="points" onclick="navigateRoute('points')">
+        <span class="material-symbols-outlined">stars</span>
+        <span>Points Ledger</span>
+      </a>
+      <a class="nav-item" data-route="usage" onclick="navigateRoute('usage')">
+        <span class="material-symbols-outlined">data_usage</span>
+        <span>Usage Tracking</span>
+      </a>
+
+      <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 pt-3 pb-1">Content</div>
+      <a class="nav-item" data-route="website" onclick="navigateRoute('website')">
+        <span class="material-symbols-outlined">web</span>
+        <span>Website CMS</span>
+      </a>
+
+      <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 pt-3 pb-1">System</div>
+      <a id="nav-admins-link" class="nav-item" data-route="admins" onclick="navigateRoute('admins')">
+        <span class="material-symbols-outlined">manage_accounts</span>
+        <span>Admins &amp; Staff</span>
+      </a>
+      <a class="nav-item" data-route="activity-logs" onclick="navigateRoute('activity-logs')">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <span>Activity Logs</span>
+      </a>
+      <a class="nav-item" data-route="login-logs" onclick="navigateRoute('login-logs')">
+        <span class="material-symbols-outlined">security</span>
+        <span>Login Logs</span>
+      </a>
+      <a class="nav-item" data-route="settings" onclick="navigateRoute('settings')">
+        <span class="material-symbols-outlined">settings</span>
+        <span>System Settings</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar User Footer -->
+    <div class="p-3 border-t border-slate-800">
+      <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60">
+        <div id="admin-avatar" class="w-8 h-8 rounded-full bg-blue-500 text-white font-bold flex items-center justify-center text-xs">A</div>
+        <div class="flex-1 min-w-0">
+          <div id="admin-user-name" class="text-xs font-bold text-white truncate">Administrator</div>
+          <div id="admin-user-email" class="text-[10px] text-slate-400 truncate">admin@sg.com</div>
+        </div>
+        <button onclick="handleAdminLogout()" title="Logout" class="p-1 text-slate-400 hover:text-red-400 transition-colors">
+          <span class="material-symbols-outlined text-[18px]">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEWPORT -->
+  <div class="flex-1 ml-0 md:ml-64 min-h-screen flex flex-col bg-slate-950">
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleAdminSidebar()" class="md:hidden p-2 text-slate-400 hover:text-white rounded-lg">
+          <span class="material-symbols-outlined text-2xl">menu</span>
+        </button>
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+          <span class="text-blue-400 font-bold">ADMIN</span>
+          <span>/</span>
+          <span id="breadcrumb-title" class="text-slate-200 capitalize font-sans font-semibold">Dashboard</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>SYSTEM READY</span>
+        </div>
+        <button onclick="navigateRoute('topups')" class="relative p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white" title="Verifikasi Top-Up">
+          <span class="material-symbols-outlined text-[20px]">notifications</span>
+          <span id="header-pending-topup-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">0</span>
+        </button>
+        <a href="index.html" target="_blank" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-blue-400 text-xs font-semibold" title="Buka Customer Portal">
+          <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+          <span>Portal Customer</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Content Workspace Container -->
+    <main class="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+
+      <!-- ============================================== -->
+      <!-- VIEW: DASHBOARD                                -->
+      <!-- ============================================== -->
+      <div id="view-dashboard" class="view-pane active space-y-8">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Executive Dashboard</h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">Ringkasan performa real-time &amp; antrean tindakan administrator.</p>
+        </div>
+
+        <!-- 6 Metrics Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div class="admin-dark-card p-5 border-slate-800">
+            <div class="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-2">Total Customer</div>
+            <div id="stat-total-customers" class="text-2xl sm:text-3xl font-extrabold text-white font-mono">0</div>
+            <div class="text-[11px] text-slate-500 mt-1">Terdaftar di sistem</div>
+          </div>
+          <div class="admin-dark-card p-5 border-slate-800">
+            <div class="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-2">Customer Aktif</div>
+            <div id="stat-active-customers" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono">0</div>
+            <div class="text-[11px] text-slate-500 mt-1">Status aktif</div>
+          </div>
+          <div class="admin-dark-card p-5 border-amber-500/30 bg-amber-500/[0.03]">
+            <div class="text-[10px] text-amber-400 font-mono uppercase tracking-wider mb-2">Pending Top-Up</div>
+            <div id="stat-pending-topups" class="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono">0</div>
+            <div class="text-[11px] text-amber-300/80 mt-1">Menunggu verifikasi</div>
+          </div>
+          <div class="admin-dark-card p-5 border-slate-800">
+            <div class="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-2">Orders Aktif</div>
+            <div id="stat-total-orders" class="text-2xl sm:text-3xl font-extrabold text-blue-400 font-mono">0</div>
+            <div class="text-[11px] text-slate-500 mt-1">Total order diproses</div>
+          </div>
+          <div class="admin-dark-card p-5 border-slate-800">
+            <div class="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-2">Total Revenue</div>
+            <div id="stat-total-revenue" class="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono truncate">Rp 0</div>
+            <div class="text-[11px] text-slate-500 mt-1">Akumulasi transaksi</div>
+          </div>
+          <div class="admin-dark-card p-5 border-slate-800">
+            <div class="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-2">Active Brands</div>
+            <div id="stat-active-brands" class="text-2xl sm:text-3xl font-extrabold text-purple-400 font-mono">0</div>
+            <div class="text-[11px] text-slate-500 mt-1">Brand sedang running</div>
+          </div>
+        </div>
+
+        <!-- Pending Topups Urgent Queue (matching screenshot) -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-400 text-xl">priority_high</span>
+              <h2 class="text-lg font-bold text-white">Antrean Verifikasi Top-Up Prioritas</h2>
+            </div>
+            <button onclick="navigateRoute('topups')" class="text-xs text-blue-400 hover:underline">Lihat Semua Top-Up →</button>
+          </div>
+          <div id="dashboard-urgent-topups" class="space-y-3">
+            <!-- Dynamic pending cards -->
+          </div>
+        </div>
+
+        <!-- Two Columns: Recent Activities & Brands Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="admin-dark-card p-6 border-slate-800 space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider">Aktivitas Sistem Terbaru</h3>
+              <button onclick="navigateRoute('activity-logs')" class="text-xs text-blue-400 hover:underline">Semua Log</button>
+            </div>
+            <div id="dashboard-recent-activities" class="space-y-3"></div>
+          </div>
+
+          <div class="admin-dark-card p-6 border-slate-800 space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider">Status Brand Berjalan</h3>
+              <button onclick="navigateRoute('brands')" class="text-xs text-blue-400 hover:underline">Kelola Brand</button>
+            </div>
+            <div id="dashboard-brands-preview" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: CUSTOMERS                                -->
+      <!-- ============================================== -->
+      <div id="view-customers" class="view-pane space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white">Customer Management</h1>
+            <p class="text-xs text-slate-400 mt-1">Daftar akun pelanggan, membership kasta, saldo, dan tindakan audit.</p>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="admin-dark-card p-4 flex flex-wrap gap-3 items-center justify-between">
+          <div class="relative flex-1 min-w-[240px]">
+            <input type="text" id="cust-search-input" oninput="renderCustomersTable()" placeholder="Cari nama, email, atau ID..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white pl-10 outline-none"/>
+            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-500 text-lg">search</span>
+          </div>
+          <div class="flex gap-2">
+            <select id="cust-filter-tier" onchange="renderCustomersTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300">
+              <option value="">Semua Kasta</option>
+              <option value="Classic">Classic</option>
+              <option value="Silver">Silver</option>
+              <option value="Gold">Gold</option>
+              <option value="Platinum">Platinum</option>
+              <option value="Diamond">Diamond</option>
+            </select>
+            <select id="cust-filter-status" onchange="renderCustomersTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300">
+              <option value="">Semua Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="SUSPENDED">Suspended</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Customers Table -->
+        <div class="admin-dark-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900/80 border-b border-slate-800 text-slate-400">
+                <tr>
+                  <th class="p-4">Customer</th>
+                  <th class="p-4">Kontak</th>
+                  <th class="p-4">Brand</th>
+                  <th class="p-4">Kasta</th>
+                  <th class="p-4">Saldo</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="customers-table-body" class="divide-y divide-slate-800/60"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: CUSTOMER DETAIL (360 Degree View)       -->
+      <!-- ============================================== -->
+      <div id="view-customer-detail" class="view-pane space-y-6">
+        <div class="flex items-center gap-3">
+          <button onclick="navigateRoute('customers')" class="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
+          </button>
+          <div>
+            <h1 class="text-2xl font-extrabold text-white">Detail Pelanggan</h1>
+            <p id="cdetail-sub" class="text-xs text-slate-400 mt-0.5">Informasi akun 360°, saldo, ledger, dan brand.</p>
+          </div>
+        </div>
+
+        <div id="cdetail-content" class="space-y-6">
+          <!-- Injected via renderCustomerDetail -->
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: BRANDS (Matching Screenshot #1)          -->
+      <!-- ============================================== -->
+      <div id="view-brands" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Status Brand Pelanggan</h1>
+          <p class="text-xs text-slate-400 mt-1">Pemantauan masa aktif paket, durasi terkunci, dan kuota sisa unggahan per brand.</p>
+        </div>
+
+        <div class="admin-dark-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+                <tr>
+                  <th class="p-4">User</th>
+                  <th class="p-4">Brand</th>
+                  <th class="p-4">Paket</th>
+                  <th class="p-4">Mulai</th>
+                  <th class="p-4">Berakhir</th>
+                  <th class="p-4">Sisa Post</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="brands-table-body" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: TOP-UPS (Matching Screenshot #2)         -->
+      <!-- ============================================== -->
+      <div id="view-topups" class="view-pane space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white">Verifikasi Pembayaran Top-Up</h1>
+            <p class="text-xs text-slate-400 mt-1">Verifikasi pembayaran QRIS dan transfer dengan transaksi saldo atomik.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="filterTopups('ALL')" id="topup-tab-all" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300">Semua</button>
+            <button onclick="filterTopups('PENDING')" id="topup-tab-pending" class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white">Menunggu Verifikasi</button>
+            <button onclick="filterTopups('APPROVED')" id="topup-tab-approved" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300">Disetujui</button>
+            <button onclick="filterTopups('REJECTED')" id="topup-tab-rejected" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300">Ditolak</button>
+          </div>
+        </div>
+
+        <div id="topups-list-container" class="space-y-4">
+          <!-- Rendered matching screenshot -->
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: ORDERS                                   -->
+      <!-- ============================================== -->
+      <div id="view-orders" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Order Management</h1>
+          <p class="text-xs text-slate-400 mt-1">Riwayat seluruh pesanan layanan optimasi konten pengguna.</p>
+        </div>
+
+        <div class="admin-dark-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+                <tr>
+                  <th class="p-4">Order ID</th>
+                  <th class="p-4">Customer / Brand</th>
+                  <th class="p-4">Paket &amp; Durasi</th>
+                  <th class="p-4">Platform / Target</th>
+                  <th class="p-4">Total</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: PACKAGES                                 -->
+      <!-- ============================================== -->
+      <div id="view-packages" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Katalog &amp; Matrix Paket</h1>
+          <p class="text-xs text-slate-400 mt-1">Tinjau 5 Level Program, durasi, metrik views/likes/komen, dan harga resmi.</p>
+        </div>
+
+        <div id="packages-cards-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: PAYMENTS & BALANCE LEDGER                -->
+      <!-- ============================================== -->
+      <div id="view-payments" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Financial Ledger &amp; Payments</h1>
+          <p class="text-xs text-slate-400 mt-1">Buku besar saldo transaksi mutlak (Double-Entry Ledger) untuk kepatuhan audit.</p>
+        </div>
+
+        <div class="admin-dark-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+                <tr>
+                  <th class="p-4">TX ID</th>
+                  <th class="p-4">Customer</th>
+                  <th class="p-4">Tipe</th>
+                  <th class="p-4">Kategori</th>
+                  <th class="p-4">Nominal</th>
+                  <th class="p-4">Saldo Sebelum</th>
+                  <th class="p-4">Saldo Sesudah</th>
+                  <th class="p-4">Keterangan</th>
+                  <th class="p-4">Waktu</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-table-body" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: MEMBERSHIP & TIERS                       -->
+      <!-- ============================================== -->
+      <div id="view-membership" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Membership Kasta &amp; Rules</h1>
+          <p class="text-xs text-slate-400 mt-1">Konfigurasi batasan poin, persentase diskon kasta, dan rate reward.</p>
+        </div>
+        <div id="membership-tiers-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4"></div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: POINTS LEDGER                            -->
+      <!-- ============================================== -->
+      <div id="view-points" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Points Reward Ledger</h1>
+          <p class="text-xs text-slate-400 mt-1">Histori penambahan dan penggunaan poin loyalitas pelanggan.</p>
+        </div>
+        <div class="admin-dark-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+                <tr>
+                  <th class="p-4">ID</th>
+                  <th class="p-4">Customer</th>
+                  <th class="p-4">Tipe</th>
+                  <th class="p-4">Poin</th>
+                  <th class="p-4">Keterangan</th>
+                  <th class="p-4">Waktu</th>
+                </tr>
+              </thead>
+              <tbody id="points-table-body" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: USAGE TRACKING                           -->
+      <!-- ============================================== -->
+      <div id="view-usage" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Usage &amp; Quota Tracking</h1>
+          <p class="text-xs text-slate-400 mt-1">Pemantauan konsumsi kuota posting seluruh akun brand pelanggan.</p>
+        </div>
+        <div id="usage-cards-container" class="space-y-4"></div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: WEBSITE CMS                              -->
+      <!-- ============================================== -->
+      <div id="view-website" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Website Content Management (CMS)</h1>
+          <p class="text-xs text-slate-400 mt-1">Kelola konten website publik secara dinamis tanpa perlu deploy ulang kode.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Flash Deal CMS -->
+          <div class="admin-dark-card p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider">🔥 Flash Growth Deal</h3>
+              <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-400">
+                <input type="checkbox" id="cms-flash-toggle" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0"/>
+                <span>Aktifkan Promo</span>
+              </label>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 font-mono mb-1">Judul Banner</label>
+              <input type="text" id="cms-flash-title" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"/>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 font-mono mb-1">Detail Fitur</label>
+              <input type="text" id="cms-flash-features" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"/>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 font-mono mb-1">Harga Normal (Rp)</label>
+                <input type="number" id="cms-flash-normal" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"/>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 font-mono mb-1">Harga Promo (Rp)</label>
+                <input type="number" id="cms-flash-promo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"/>
+              </div>
+            </div>
+            <button onclick="saveCmsFlashDeal()" class="btn-admin w-full py-3 rounded-xl text-xs font-bold">Simpan Flash Deal</button>
+          </div>
+
+          <!-- Announcement & Contact CMS -->
+          <div class="admin-dark-card p-6 space-y-4">
+            <div class="border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider">📢 Announcement &amp; Kontak</h3>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 font-mono mb-1">Pesan Pengumuman</label>
+              <textarea id="cms-announcement-text" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 font-mono mb-1">No. WhatsApp</label>
+                <input type="text" id="cms-wa-number" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"/>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 font-mono mb-1">Tampilan WhatsApp</label>
+                <input type="text" id="cms-wa-display" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"/>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 font-mono mb-1">Jam Operasional</label>
+              <input type="text" id="cms-hours" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white"/>
+            </div>
+            <button onclick="saveCmsContact()" class="btn-admin w-full py-3 rounded-xl text-xs font-bold">Simpan Info Kontak</button>
+          </div>
+        </div>
+
+        <!-- FAQ Management -->
+        <div class="admin-dark-card p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider">Pusat Informasi FAQ</h3>
+            <button onclick="openAddFaqModal()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">add</span>Tambah FAQ
+            </button>
+          </div>
+          <div id="cms-faq-list" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: ADMINS & STAFF (RBAC)                    -->
+      <!-- ============================================== -->
+      <div id="view-admins" class="view-pane space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white">Administrator &amp; Staff</h1>
+            <p class="text-xs text-slate-400 mt-1">Kelola hak akses dan peran (Role-Based Access Control) administrator sistem.</p>
+          </div>
+          <button onclick="openAddAdminModal()" id="btn-add-admin" class="btn-admin px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">person_add</span>
+            <span>Tambah Administrator</span>
+          </button>
+        </div>
+
+        <div class="admin-dark-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+                <tr>
+                  <th class="p-4">Admin</th>
+                  <th class="p-4">Role</th>
+                  <th class="p-4">Kontak</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4">Login Terakhir</th>
+                  <th class="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="admins-table-body" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: ACTIVITY LOGS                            -->
+      <!-- ============================================== -->
+      <div id="view-activity-logs" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Audit Activity Logs</h1>
+          <p class="text-xs text-slate-400 mt-1">Catatan audit permanen atas seluruh tindakan operasional administrator.</p>
+        </div>
+
+        <div class="admin-dark-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+                <tr>
+                  <th class="p-4">Timestamp</th>
+                  <th class="p-4">Actor</th>
+                  <th class="p-4">Role</th>
+                  <th class="p-4">Action</th>
+                  <th class="p-4">Target Ref</th>
+                  <th class="p-4">Nominal</th>
+                  <th class="p-4">Detail Audit</th>
+                </tr>
+              </thead>
+              <tbody id="activity-logs-table-body" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: LOGIN LOGS                               -->
+      <!-- ============================================== -->
+      <div id="view-login-logs" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Security &amp; Login Logs</h1>
+          <p class="text-xs text-slate-400 mt-1">Monitoring seluruh upaya autentikasi pengguna dan administrator.</p>
+        </div>
+
+        <div class="admin-dark-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-900 border-b border-slate-800 text-slate-400">
+                <tr>
+                  <th class="p-4">Waktu</th>
+                  <th class="p-4">Identifier / Email</th>
+                  <th class="p-4">Peran</th>
+                  <th class="p-4">Device</th>
+                  <th class="p-4">Browser</th>
+                  <th class="p-4">Hasil Autentikasi</th>
+                </tr>
+              </thead>
+              <tbody id="login-logs-table-body" class="divide-y divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- VIEW: SYSTEM SETTINGS                          -->
+      <!-- ============================================== -->
+      <div id="view-settings" class="view-pane space-y-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">System Settings &amp; Security</h1>
+          <p class="text-xs text-slate-400 mt-1">Konfigurasi operasional tingkat lanjut dan utilitas database.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="admin-dark-card p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider border-b border-slate-800 pb-3">Konfigurasi Keamanan</h3>
+            <div class="space-y-3">
+              <label class="flex items-center justify-between text-xs text-slate-300">
+                <span>Izinkan Pendaftaran Customer Baru</span>
+                <input type="checkbox" id="settings-allow-reg" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0"/>
+              </label>
+              <label class="flex items-center justify-between text-xs text-slate-300">
+                <span>Mode Pemeliharaan (Maintenance Mode)</span>
+                <input type="checkbox" id="settings-maintenance" class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0"/>
+              </label>
+            </div>
+            <div class="pt-2">
+              <button onclick="saveSystemSettings()" class="btn-admin w-full py-3 rounded-xl text-xs font-bold">Simpan Pengaturan</button>
+            </div>
+          </div>
+
+          <div class="admin-dark-card p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider border-b border-slate-800 pb-3">Database Backup &amp; Tool</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Ekspor snapshot data aplikasi dalam format JSON atau reset ke seed awal untuk lingkungan uji coba.</p>
+            <div class="flex flex-wrap gap-3 pt-2">
+              <button onclick="exportDatabaseJson()" class="flex-1 btn-admin-secondary py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">download</span>Ekspor JSON
+              </button>
+              <button onclick="confirmResetDemoData()" class="flex-1 btn-admin-danger py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">restart_alt</span>Reset Sample Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- MODALS                                                      -->
+<!-- =========================================================== -->
+
+<!-- MODAL: REJECT TOPUP (Requires reason) -->
+<div id="modal-reject-topup" class="modal-overlay">
+  <div class="admin-dark-card p-6 w-full max-w-md border-red-500/30">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-bold text-white flex items-center gap-2">
+        <span class="material-symbols-outlined text-red-400">cancel</span>
+        <span>Tolak Permintaan Top-Up</span>
+      </h3>
+      <button onclick="closeModal('modal-reject-topup')" class="text-slate-400 hover:text-white">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+      Sebutkan alasan penolakan top-up. Alasan ini akan dicatat ke dalam audit log dan disampaikan kepada pelanggan.
+    </p>
+    <input type="hidden" id="reject-topup-id"/>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-mono text-slate-400 mb-1">Alasan Penolakan *</label>
+        <textarea id="reject-topup-reason" rows="3" placeholder="Contoh: Bukti transfer tidak terverifikasi atau nominal transfer tidak sesuai." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white outline-none focus:border-red-500"></textarea>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="closeModal('modal-reject-topup')" class="flex-1 btn-admin-secondary py-3 rounded-xl text-xs font-bold">Batal</button>
+        <button onclick="submitRejectTopup()" class="flex-1 btn-admin-danger py-3 rounded-xl text-xs font-bold">Konfirmasi Tolak</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADJUST CUSTOMER BALANCE -->
+<div id="modal-adjust-balance" class="modal-overlay">
+  <div class="admin-dark-card p-6 w-full max-w-md border-slate-700">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-bold text-white flex items-center gap-2">
+        <span class="material-symbols-outlined text-blue-400">account_balance_wallet</span>
+        <span>Adjust Saldo Customer</span>
+      </h3>
+      <button onclick="closeModal('modal-adjust-balance')" class="text-slate-400 hover:text-white">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <input type="hidden" id="adj-cust-id"/>
+    <div class="space-y-4 text-xs font-mono">
+      <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+        <div class="text-slate-400">Customer: <strong id="adj-cust-name" class="text-white">—</strong></div>
+        <div class="text-slate-400">Saldo Saat Ini: <strong id="adj-cust-balance" class="text-emerald-400">—</strong></div>
+      </div>
+      <div>
+        <label class="block text-slate-400 mb-1">Tipe Penyesuaian *</label>
+        <select id="adj-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+          <option value="ADD">➕ Penambahan Saldo (Credit)</option>
+          <option value="SUBTRACT">➖ Pengurangan Saldo (Debit)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-slate-400 mb-1">Nominal (Rp) *</label>
+        <input type="number" id="adj-amount" min="1000" placeholder="50000" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white"/>
+      </div>
+      <div>
+        <label class="block text-slate-400 mb-1">Alasan Penyesuaian (Audit Log) *</label>
+        <textarea id="adj-reason" rows="2" placeholder="Contoh: Koreksi pembayaran manual / refund order ORD-..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white"></textarea>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('modal-adjust-balance')" class="flex-1 btn-admin-secondary py-3 rounded-xl text-xs font-bold">Batal</button>
+        <button onclick="submitAdjustBalance()" class="flex-1 btn-admin py-3 rounded-xl text-xs font-bold">Terapkan Perubahan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD ADMIN / STAFF (SUPER_ADMIN ONLY) -->
+<div id="modal-add-admin" class="modal-overlay">
+  <div class="admin-dark-card p-6 w-full max-w-md border-slate-700">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-bold text-white flex items-center gap-2">
+        <span class="material-symbols-outlined text-blue-400">person_add</span>
+        <span>Tambah Administrator / Staff</span>
+      </h3>
+      <button onclick="closeModal('modal-add-admin')" class="text-slate-400 hover:text-white">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form onsubmit="handleCreateAdminSubmit(event)" class="space-y-3.5 text-xs font-mono">
+      <div>
+        <label class="block text-slate-400 mb-1">Nama Lengkap *</label>
+        <input type="text" id="newadmin-name" required placeholder="Staff Operasional" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white"/>
+      </div>
+      <div>
+        <label class="block text-slate-400 mb-1">Email Resmi *</label>
+        <input type="email" id="newadmin-email" required placeholder="staff@solvientgrowth.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white"/>
+      </div>
+      <div>
+        <label class="block text-slate-400 mb-1">No. WhatsApp *</label>
+        <input type="tel" id="newadmin-phone" required placeholder="08xxxxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white"/>
+      </div>
+      <div>
+        <label class="block text-slate-400 mb-1">Peran (Role) *</label>
+        <select id="newadmin-role" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+          <option value="STAFF">STAFF (Verifikasi top-up, lihat order &amp; customer)</option>
+          <option value="ADMIN">ADMIN (Kelola customer, brand, packages, CMS, topup)</option>
+          <option value="SUPER_ADMIN">SUPER_ADMIN (Akses penuh + manajemen admin &amp; setting)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-slate-400 mb-1">Password Sementara (min. 8 karakter) *</label>
+        <input type="password" id="newadmin-pass" required minlength="8" placeholder="••••••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white"/>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="closeModal('modal-add-admin')" class="flex-1 btn-admin-secondary py-3 rounded-xl text-xs font-bold">Batal</button>
+        <button type="submit" class="flex-1 btn-admin py-3 rounded-xl text-xs font-bold">Simpan Akun</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: ADD FAQ -->
+<div id="modal-add-faq" class="modal-overlay">
+  <div class="admin-dark-card p-6 w-full max-w-md border-slate-700">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-bold text-white">Tambah Item FAQ</h3>
+      <button onclick="closeModal('modal-add-faq')" class="text-slate-400 hover:text-white">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="space-y-4 text-xs font-mono">
+      <div>
+        <label class="block text-slate-400 mb-1">Pertanyaan</label>
+        <input type="text" id="faq-new-q" placeholder="Contoh: Berapa lama estimasi proses order?" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white"/>
+      </div>
+      <div>
+        <label class="block text-slate-400 mb-1">Jawaban</label>
+        <textarea id="faq-new-a" rows="3" placeholder="Jawaban detail..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white"></textarea>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeModal('modal-add-faq')" class="flex-1 btn-admin-secondary py-3 rounded-xl text-xs font-bold">Batal</button>
+        <button onclick="submitAddFaq()" class="flex-1 btn-admin py-3 rounded-xl text-xs font-bold">Tambahkan FAQ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: FORGOT PASSWORD INFO -->
+<div id="modal-forgot-password" class="modal-overlay">
+  <div class="admin-dark-card p-6 w-full max-w-md border-slate-700 text-center">
+    <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto mb-3">
+      <span class="material-symbols-outlined text-2xl">lock_reset</span>
+    </div>
+    <h3 class="text-base font-bold text-white mb-2">Reset Password Administrator</h3>
+    <p class="text-xs text-slate-400 leading-relaxed mb-6">
+      Untuk alasan keamanan perimeter, password administrator tidak dapat direset secara mandiri tanpa token master. Silakan hubungi <strong>SUPER_ADMIN</strong> instansi Anda untuk mereset kata sandi.
+    </p>
+    <button onclick="closeModal('modal-forgot-password')" class="btn-admin w-full py-3 rounded-xl text-xs font-bold">Mengerti</button>
+  </div>
+</div>
+
+<!-- FLOATING TOAST -->
+<div id="admin-toast" class="admin-toast bg-blue-600 text-white">Notifikasi</div>
+
+<!-- =========================================================== -->
+<!-- SCRIPT: CORE INTEGRATION & CONTROLLER                      -->
+<!-- =========================================================== -->
+<script src="shared-core.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  let currentAdminSession = null;
+  let currentTopupFilter = 'PENDING';
+
+  function showToast(msg, type = 'info') {
+    const el = document.getElementById('admin-toast');
+    el.textContent = msg;
+    el.className = 'admin-toast show ' + (type === 'error' ? 'bg-red-500 text-white' : type === 'success' ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white');
+    clearTimeout(window._admToastT);
+    window._admToastT = setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  function openModal(id) {
+    document.getElementById(id).classList.add('show');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+  }
+
+  function togglePassVisibility(inputId, btn) {
+    const el = document.getElementById(inputId);
+    const isPass = el.type === 'password';
+    el.type = isPass ? 'text' : 'password';
+    btn.querySelector('.material-symbols-outlined').textContent = isPass ? 'visibility_off' : 'visibility';
+  }
+
+  // ==========================================
+  // ROUTING & VIEW CONTROLLER
+  // ==========================================
+  function navigateRoute(route) {
+    window.location.hash = '#' + route;
+    handleRouteChange();
+  }
+
+  function handleRouteChange() {
+    const hash = window.location.hash.replace('#', '') || 'dashboard';
+    const hasAdmin = SG_CORE.DB.hasSuperAdmin();
+
+    // Setup route check
+    if (hash === 'setup') {
+      if (hasAdmin) {
+        showViewPane('screen-setup');
+        document.getElementById('setup-locked-view').classList.remove('hidden');
+        document.getElementById('setup-form-view').classList.add('hidden');
+      } else {
+        showViewPane('screen-setup');
+        document.getElementById('setup-locked-view').classList.add('hidden');
+        document.getElementById('setup-form-view').classList.remove('hidden');
+      }
+      return;
+    }
+
+    // Check Authentication
+    const session = SG_CORE.DB.getAdminSession();
+    if (!session) {
+      currentAdminSession = null;
+      showViewPane('screen-login');
+      // If no admin exists at all, display setup prompt
+      document.getElementById('login-setup-alert').classList.toggle('hidden', hasAdmin);
+      return;
+    }
+
+    currentAdminSession = session;
+    showViewPane('screen-app');
+
+    // Role badge
+    document.getElementById('admin-badge-role').textContent = session.role;
+    document.getElementById('admin-user-name').textContent = session.name;
+    document.getElementById('admin-user-email').textContent = session.email;
+    document.getElementById('admin-avatar').textContent = (session.name || 'A')[0].toUpperCase();
+
+    // SUPER_ADMIN exclusive links
+    const isSuper = session.role === SG_CORE.ROLES.SUPER_ADMIN;
+    document.getElementById('nav-admins-link').classList.toggle('hidden', !isSuper);
+    const btnAddAdmin = document.getElementById('btn-add-admin');
+    if (btnAddAdmin) btnAddAdmin.classList.toggle('hidden', !isSuper);
+
+    // Render active tab
+    const subRoute = hash === 'login' ? 'dashboard' : hash;
+    activateWorkspaceTab(subRoute);
+  }
+
+  function showViewPane(screenId) {
+    ['screen-login', 'screen-setup', 'screen-app'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active', id === screenId);
+    });
+  }
+
+  function activateWorkspaceTab(tabName) {
+    document.querySelectorAll('#screen-app .view-pane').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(l => l.classList.toggle('active', l.dataset.route === tabName));
+
+    const targetView = document.getElementById('view-' + tabName);
+    if (targetView) {
+      targetView.classList.add('active');
+      document.getElementById('breadcrumb-title').textContent = tabName.replace('-', ' ');
+    } else {
+      document.getElementById('view-dashboard').classList.add('active');
+      document.getElementById('breadcrumb-title').textContent = 'Dashboard';
+    }
+
+    // Render relevant data
+    renderGlobalBadges();
+    if (tabName === 'dashboard') renderDashboard();
+    else if (tabName === 'customers') renderCustomersTable();
+    else if (tabName === 'brands') renderBrandsTable();
+    else if (tabName === 'topups') renderTopupsList();
+    else if (tabName === 'orders') renderOrdersTable();
+    else if (tabName === 'packages') renderPackagesGrid();
+    else if (tabName === 'payments') renderLedgerTable();
+    else if (tabName === 'membership') renderMembershipTiers();
+    else if (tabName === 'points') renderPointsTable();
+    else if (tabName === 'usage') renderUsageTracking();
+    else if (tabName === 'website') renderWebsiteCms();
+    else if (tabName === 'admins') renderAdminsTable();
+    else if (tabName === 'activity-logs') renderActivityLogsTable();
+    else if (tabName === 'login-logs') renderLoginLogsTable();
+    else if (tabName === 'settings') renderSystemSettings();
+
+    if (window.innerWidth < 768) {
+      document.getElementById('admin-sidebar').style.transform = 'translateX(-100%)';
+    }
+  }
+
+  function toggleAdminSidebar() {
+    const sb = document.getElementById('admin-sidebar');
+    const cur = sb.style.transform;
+    sb.style.transform = (cur === 'translateX(-100%)' || cur === '') ? 'translateX(0)' : 'translateX(-100%)';
+  }
+
+  // ==========================================
+  // BADGES & NOTIFICATIONS
+  // ==========================================
+  function renderGlobalBadges() {
+    const pendingTopups = SG_CORE.DB.getTopups().filter(t => t.status === 'Menunggu Verifikasi');
+    const sideBadge = document.getElementById('sidebar-pending-topup-badge');
+    const headerBadge = document.getElementById('header-pending-topup-badge');
+
+    if (pendingTopups.length > 0) {
+      sideBadge.textContent = pendingTopups.length;
+      sideBadge.classList.remove('hidden');
+      headerBadge.textContent = pendingTopups.length;
+      headerBadge.classList.remove('hidden');
+    } else {
+      sideBadge.classList.add('hidden');
+      headerBadge.classList.add('hidden');
+    }
+  }
+
+  // ==========================================
+  // FIRST ADMIN SETUP CONTROLLER
+  // ==========================================
+  async function handleFirstAdminSetup(e) {
+    e.preventDefault();
+    if (SG_CORE.DB.hasSuperAdmin()) {
+      showToast('Akses ditolak: SUPER_ADMIN sudah terdaftar.', 'error');
+      navigateRoute('login');
+      return;
+    }
+
+    const name = document.getElementById('setup-name').value.trim();
+    const email = document.getElementById('setup-email').value.trim().toLowerCase();
+    const phone = document.getElementById('setup-phone').value.trim();
+    const pass = document.getElementById('setup-password').value;
+    const passConfirm = document.getElementById('setup-password-confirm').value;
+
+    if (pass !== passConfirm) {
+      showToast('Konfirmasi kata sandi tidak cocok.', 'error');
+      return;
+    }
+    if (pass.length < 8) {
+      showToast('Kata sandi harus minimal 8 karakter.', 'error');
+      return;
+    }
+
+    const salt = SG_CORE.generateSalt();
+    const { hash } = await SG_CORE.hashPassword(pass, salt);
+
+    const users = SG_CORE.DB.getUsers();
+    const superAdmin = {
+      id: 'ADM-' + Math.floor(1000 + Math.random() * 9000),
+      name,
+      email,
+      phone,
+      passwordHash: hash,
+      passwordSalt: salt,
+      role: SG_CORE.ROLES.SUPER_ADMIN,
+      tier: 'Diamond',
+      balance: 0,
+      points: 0,
+      status: 'ACTIVE',
+      brands: [],
+      createdAt: Date.now(),
+      lastLogin: Date.now()
+    };
+    users.unshift(superAdmin);
+    SG_CORE.DB.saveUsers(users);
+
+    // Update settings lock
+    const settings = SG_CORE.DB.getSettings();
+    settings.firstAdminSetupDone = true;
+    SG_CORE.DB.saveSettings(settings);
+
+    // Log Activity
+    SG_CORE.DB.logActivity({
+      adminId: superAdmin.id,
+      adminName: superAdmin.name,
+      adminRole: superAdmin.role,
+      action: 'BOOTSTRAP_SUPER_ADMIN',
+      target: superAdmin.id,
+      details: `First SUPER_ADMIN (${superAdmin.email}) initialized. Setup route locked.`
+    });
+
+    SG_CORE.DB.logLogin({
+      email: superAdmin.email,
+      role: superAdmin.role,
+      result: 'SUCCESS',
+      reason: 'First admin bootstrap creation'
+    });
+
+    showToast('Super Admin pertama berhasil dibuat! Setup route telah dikunci.', 'success');
+    setTimeout(() => {
+      navigateRoute('login');
+    }, 1200);
+  }
+
+  // ==========================================
+  // ADMIN AUTHENTICATION
+  // ==========================================
+  async function handleAdminLogin(e) {
+    e.preventDefault();
+    const idf = document.getElementById('admin-login-id').value.trim().toLowerCase();
+    const pass = document.getElementById('admin-login-pass').value;
+
+    // Rate Limiter Check
+    const rateCheck = SG_CORE.RateLimiter.check(idf);
+    if (!rateCheck.allowed) {
+      showToast(rateCheck.message, 'error');
+      SG_CORE.DB.logLogin({ email: idf, role: 'UNKNOWN', result: 'LOCKED', reason: rateCheck.message });
+      return;
+    }
+
+    const user = SG_CORE.DB.findUserByEmailOrIdentifier(idf);
+    if (!user) {
+      SG_CORE.RateLimiter.recordFailure(idf);
+      SG_CORE.DB.logLogin({ email: idf, role: 'UNKNOWN', result: 'FAILED', reason: 'User not found' });
+      showToast('Email atau kata sandi tidak valid.', 'error');
+      return;
+    }
+
+    // Role Authorization Guard: CUSTOMERS ARE FORBIDDEN
+    if (user.role === SG_CORE.ROLES.CUSTOMER) {
+      SG_CORE.RateLimiter.recordFailure(idf);
+      SG_CORE.DB.logLogin({ email: idf, role: user.role, result: 'FAILED', reason: 'Customer attempted admin portal login' });
+      showToast('Akses ditolak: Akun pelanggan tidak memiliki izin administrator.', 'error');
+      return;
+    }
+
+    if (user.status === 'SUSPENDED') {
+      showToast('Akun administrator ini telah dinonaktifkan.', 'error');
+      SG_CORE.DB.logLogin({ email: idf, role: user.role, result: 'LOCKED', reason: 'Account suspended' });
+      return;
+    }
+
+    const isMatch = await SG_CORE.verifyPassword(pass, user.passwordHash, user.passwordSalt);
+    if (!isMatch) {
+      const isLocked = SG_CORE.RateLimiter.recordFailure(idf);
+      SG_CORE.DB.logLogin({ email: idf, role: user.role, result: 'FAILED', reason: 'Invalid password' });
+      if (isLocked) {
+        showToast('Terlalu banyak percobaan gagal. Akun dikunci sementara selama 15 menit.', 'error');
+      } else {
+        showToast('Email atau kata sandi tidak valid.', 'error');
+      }
+      return;
+    }
+
+    // Success
+    SG_CORE.RateLimiter.recordSuccess(idf);
+    user.lastLogin = Date.now();
+    const users = SG_CORE.DB.getUsers();
+    const idx = users.findIndex(u => u.id === user.id);
+    if (idx !== -1) { users[idx] = user; SG_CORE.DB.saveUsers(users); }
+
+    const session = SG_CORE.DB.setAdminSession({
+      adminId: user.id,
+      role: user.role,
+      name: user.name,
+      email: user.email
+    });
+
+    SG_CORE.DB.logLogin({
+      email: user.email,
+      role: user.role,
+      result: 'SUCCESS',
+      reason: 'Admin credentials authenticated'
+    });
+
+    showToast(`Selamat datang, ${user.name}!`, 'success');
+    navigateRoute('dashboard');
+  }
+
+  function handleAdminLogout() {
+    if (!confirm('Apakah Anda yakin ingin keluar dari Admin Portal?')) return;
+    SG_CORE.DB.clearAdminSession();
+    currentAdminSession = null;
+    showToast('Session administrator berhasil diakhiri.', 'info');
+    navigateRoute('login');
+  }
+
+  // ==========================================
+  // DASHBOARD RENDERER
+  // ==========================================
+  function renderDashboard() {
+    const users = SG_CORE.DB.getUsers().filter(u => u.role === SG_CORE.ROLES.CUSTOMER);
+    const activeCustomers = users.filter(u => u.status === 'ACTIVE');
+    const topups = SG_CORE.DB.getTopups();
+    const pendingTopups = topups.filter(t => t.status === 'Menunggu Verifikasi');
+    const orders = SG_CORE.DB.getOrders();
+    const ledger = SG_CORE.DB.getLedger();
+
+    // Total Revenue calculation from topup verified + orders
+    const approvedTopups = topups.filter(t => t.status === 'Disetujui' || t.status === 'Verified');
+    const totalRevenue = approvedTopups.reduce((sum, t) => sum + Number(t.paid || 0), 0);
+
+    // Active Brands Count
+    let totalBrands = 0;
+    users.forEach(u => {
+      totalBrands += (u.brands || []).filter(b => b.lockedDuration).length;
+    });
+
+    document.getElementById('stat-total-customers').textContent = users.length;
+    document.getElementById('stat-active-customers').textContent = activeCustomers.length;
+    document.getElementById('stat-pending-topups').textContent = pendingTopups.length;
+    document.getElementById('stat-total-orders').textContent = orders.length;
+    document.getElementById('stat-total-revenue').textContent = SG_CORE.formatRp(totalRevenue);
+    document.getElementById('stat-active-brands').textContent = totalBrands;
+
+    // Urgent Topup Queue (Top 3)
+    const urgentContainer = document.getElementById('dashboard-urgent-topups');
+    if (pendingTopups.length === 0) {
+      urgentContainer.innerHTML = `
+        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center text-xs text-slate-500 font-mono">
+          ✅ Tidak ada antrean verifikasi top-up yang menunggu saat ini.
+        </div>`;
+    } else {
+      urgentContainer.innerHTML = pendingTopups.slice(0, 3).map(t => `
+        <div class="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+          <div class="space-y-1">
+            <div class="text-white font-bold text-sm flex items-center gap-2">
+              <span>${t.userName || t.userId}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/20 text-amber-300 font-bold">⏳ Menunggu</span>
+            </div>
+            <div class="text-slate-400">${t.id} · ${new Date(t.date).toLocaleString('id-ID')}</div>
+            <div class="flex gap-4 pt-1 text-[11px]">
+              <span>Bayar: <strong class="text-blue-400">${SG_CORE.formatRp(t.paid)}</strong></span>
+              <span>Saldo: <strong class="text-emerald-400">${SG_CORE.formatRp(t.total)}</strong></span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="executeApproveTopup('${t.id}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-xs transition-colors flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">check</span> Approve
+            </button>
+            <button onclick="promptRejectTopup('${t.id}')" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl text-xs transition-colors flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">close</span> Tolak
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Recent Activities
+    const actContainer = document.getElementById('dashboard-recent-activities');
+    const logs = SG_CORE.DB.getActivityLogs().slice(0, 5);
+    if (logs.length === 0) {
+      actContainer.innerHTML = '<div class="text-xs text-slate-500">Belum ada aktivitas tercatat.</div>';
+    } else {
+      actContainer.innerHTML = logs.map(l => `
+        <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-900 border border-slate-800/80 text-xs">
+          <span class="material-symbols-outlined text-blue-400 text-lg mt-0.5">history</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between">
+              <span class="font-bold text-slate-200">${l.action}</span>
+              <span class="text-[10px] text-slate-500 font-mono">${new Date(l.date).toLocaleTimeString('id-ID')}</span>
+            </div>
+            <div class="text-slate-400 text-[11px] truncate mt-0.5">${l.details || l.target}</div>
+            <div class="text-[10px] text-slate-500 font-mono mt-0.5">By: ${l.adminName} (${l.adminRole})</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Brands Preview
+    const brandsPreview = document.getElementById('dashboard-brands-preview');
+    let runningBrands = [];
+    users.forEach(u => {
+      (u.brands || []).forEach(b => {
+        if (b.lockedDuration) runningBrands.push({ user: u.name, ...b });
+      });
+    });
+
+    if (runningBrands.length === 0) {
+      brandsPreview.innerHTML = '<div class="text-xs text-slate-500">Belum ada brand aktif.</div>';
+    } else {
+      brandsPreview.innerHTML = runningBrands.slice(0, 4).map(b => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
+          <div>
+            <div class="text-white font-bold">${b.name} <span class="text-slate-500 font-normal">(${b.user})</span></div>
+            <div class="text-blue-400 text-[11px]">${SG_CORE.DURATION_LABELS[b.lockedDuration] || b.lockedDuration}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-emerald-400 font-bold">${(b.totalPosts || 0) - (b.usedPosts || 0)} / ${b.totalPosts || 0} Post</div>
+            <div class="text-[10px] text-slate-500">Hingga ${b.endDate ? new Date(b.endDate).toLocaleDateString('id-ID') : '-'}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // ==========================================
+  // TOP-UPS CONTROLLER (Matches Screenshot #2)
+  // ==========================================
+  function filterTopups(filterType) {
+    currentTopupFilter = filterType;
+    ['all', 'pending', 'approved', 'rejected'].forEach(tab => {
+      const b = document.getElementById(`topup-tab-${tab}`);
+      if (!b) return;
+      const isActive = tab.toUpperCase() === filterType;
+      b.className = isActive ? 'px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white' : 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300';
+    });
+    renderTopupsList();
+  }
+
+  function renderTopupsList() {
+    const list = SG_CORE.DB.getTopups();
+    const container = document.getElementById('topups-list-container');
+    let filtered = list;
+
+    if (currentTopupFilter === 'PENDING') {
+      filtered = list.filter(t => t.status === 'Menunggu Verifikasi');
+    } else if (currentTopupFilter === 'APPROVED') {
+      filtered = list.filter(t => t.status === 'Disetujui' || t.status === 'Verified');
+    } else if (currentTopupFilter === 'REJECTED') {
+      filtered = list.filter(t => t.status === 'Ditolak');
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="admin-dark-card p-12 text-center text-slate-400 text-xs font-mono">
+          <span class="material-symbols-outlined text-4xl text-slate-600 mb-2">inbox</span>
+          <p>Belum ada data permintaan top-up untuk filter ini.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(t => {
+      const isPending = t.status === 'Menunggu Verifikasi';
+      const isApproved = t.status === 'Disetujui' || t.status === 'Verified';
+      const isRejected = t.status === 'Ditolak';
+
+      const cardBorder = isPending ? 'border-amber-400/40 bg-amber-500/[0.03]' : 'border-slate-800 bg-slate-900/60';
+      const badgeClass = isPending ? 'bg-amber-100 text-amber-800 border-amber-300' : isApproved ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-red-100 text-red-800 border-red-300';
+      const badgeIcon = isPending ? 'schedule' : isApproved ? 'check_circle' : 'cancel';
+      const badgeText = isPending ? 'Menunggu' : isApproved ? 'Disetujui' : 'Ditolak';
+
+      return `
+      <div class="p-5 rounded-2xl border ${cardBorder} flex flex-wrap items-start justify-between gap-4 text-xs font-mono transition-all">
+        <div class="space-y-1.5 flex-1 min-w-[240px]">
+          <div class="text-white font-bold text-base tracking-wide">${t.userName || t.userId}</div>
+          <div class="text-slate-400 text-[11px]">${t.id} &nbsp;·&nbsp; ${new Date(t.date).toLocaleString('id-ID')}</div>
+          <div class="flex flex-wrap gap-4 pt-1 text-xs">
+            <span>Bayar: <strong class="text-blue-400">${SG_CORE.formatRp(t.paid)}</strong></span>
+            <span>Saldo: <strong class="text-emerald-400">${SG_CORE.formatRp(t.total)}</strong></span>
+            ${t.bonus > 0 ? `<span>Bonus: <strong class="text-purple-400">${SG_CORE.formatRp(t.bonus)}</strong></span>` : ''}
+          </div>
+          <div class="pt-1.5">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${badgeClass}">
+              <span class="material-symbols-outlined text-[13px]">${badgeIcon}</span>
+              <span>${badgeText}</span>
+            </span>
+            ${t.rejectionReason ? `<span class="text-red-400 ml-2 text-[11px] font-sans">Alasan: ${t.rejectionReason}</span>` : ''}
+            ${t.verifiedBy ? `<span class="text-slate-400 ml-2 text-[10px] font-mono">Diverifikasi oleh: ${t.verifiedBy}</span>` : ''}
+          </div>
+        </div>
+
+        ${isPending ? `
+        <div class="flex items-center gap-2 self-center sm:self-start">
+          <button onclick="executeApproveTopup('${t.id}')" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-xs transition-transform hover:-translate-y-0.5 flex items-center gap-1.5 shadow-md">
+            <span class="material-symbols-outlined text-[16px]">check</span>
+            <span>Approve</span>
+          </button>
+          <button onclick="promptRejectTopup('${t.id}')" class="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl text-xs transition-transform hover:-translate-y-0.5 flex items-center gap-1.5 shadow-md">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+            <span>Tolak</span>
+          </button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  async function executeApproveTopup(topupId) {
+    if (!currentAdminSession) return;
+    try {
+      const res = await SG_CORE.Services.approveTopup(topupId, currentAdminSession);
+      showToast(`Top-up ${topupId} disetujui! Saldo pelanggan diperbarui ke ${SG_CORE.formatRp(res.newBalance)}.`, 'success');
+      renderGlobalBadges();
+      renderDashboard();
+      renderTopupsList();
+    } catch (err) {
+      showToast(err.message || 'Gagal memproses top-up', 'error');
+    }
+  }
+
+  function promptRejectTopup(topupId) {
+    document.getElementById('reject-topup-id').value = topupId;
+    document.getElementById('reject-topup-reason').value = '';
+    openModal('modal-reject-topup');
+  }
+
+  async function submitRejectTopup() {
+    const topupId = document.getElementById('reject-topup-id').value;
+    const reason = document.getElementById('reject-topup-reason').value;
+    if (!reason.trim()) {
+      showToast('Wajib mengisi alasan penolakan.', 'error');
+      return;
+    }
+    try {
+      await SG_CORE.Services.rejectTopup(topupId, reason, currentAdminSession);
+      closeModal('modal-reject-topup');
+      showToast(`Top-up ${topupId} telah ditolak. Alasan tercatat.`, 'info');
+      renderGlobalBadges();
+      renderDashboard();
+      renderTopupsList();
+    } catch (err) {
+      showToast(err.message || 'Gagal menolak top-up', 'error');
+    }
+  }
+
+  // ==========================================
+  // BRANDS CONTROLLER (Matches Screenshot #1)
+  // ==========================================
+  function renderBrandsTable() {
+    const users = SG_CORE.DB.getUsers();
+    const tbody = document.getElementById('brands-table-body');
+    tbody.innerHTML = '';
+    let rows = [];
+
+    users.forEach(u => {
+      (u.brands || []).forEach(b => {
+        if (b.lockedDuration) {
+          const sisaPost = (b.totalPosts || 0) - (b.usedPosts || 0);
+          const isExpired = b.endDate && new Date(b.endDate) < new Date();
+          const startDate = b.startDate ? new Date(b.startDate).toLocaleDateString('id-ID') : '-';
+          const endDate = b.endDate ? new Date(b.endDate).toLocaleDateString('id-ID') : '-';
+          rows.push({
+            user: u.name,
+            userId: u.id,
+            brand: b.name,
+            duration: b.lockedDuration,
+            start: startDate,
+            end: endDate,
+            sisaPost: `${sisaPost}/${b.totalPosts || 0}`,
+            isExpired
+          });
+        }
+      });
+    });
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-slate-500">Belum ada data brand dengan paket aktif.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r => `
+      <tr class="hover:bg-slate-900/40 border-b border-slate-800">
+        <td class="p-4 font-bold text-white">${r.user}</td>
+        <td class="p-4 font-semibold text-slate-300">${r.brand}</td>
+        <td class="p-4"><span class="px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 font-bold">${SG_CORE.DURATION_LABELS[r.duration] || r.duration}</span></td>
+        <td class="p-4 text-slate-400">${r.start}</td>
+        <td class="p-4 font-bold ${r.isExpired ? 'text-red-400' : 'text-emerald-400'}">${r.end}</td>
+        <td class="p-4 font-bold text-slate-200">${r.sisaPost}</td>
+        <td class="p-4">
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${r.isExpired ? 'bg-red-500/20 text-red-300' : 'bg-emerald-500/20 text-emerald-300'}">
+            ${r.isExpired ? 'EXPIRED' : 'ACTIVE'}
+          </span>
+        </td>
+        <td class="p-4 text-right">
+          <button onclick="viewCustomerDetail('${r.userId}')" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 font-semibold">
+            Lihat User
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ==========================================
+  // CUSTOMERS CONTROLLER
+  // ==========================================
+  function renderCustomersTable() {
+    const q = (document.getElementById('cust-search-input')?.value || '').toLowerCase();
+    const tierFilter = document.getElementById('cust-filter-tier')?.value || '';
+    const statusFilter = document.getElementById('cust-filter-status')?.value || '';
+
+    const users = SG_CORE.DB.getUsers().filter(u => u.role === SG_CORE.ROLES.CUSTOMER);
+    const tbody = document.getElementById('customers-table-body');
+
+    const filtered = users.filter(u => {
+      const matchQ = (u.name && u.name.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q)) || (u.id && u.id.toLowerCase().includes(q));
+      const matchTier = !tierFilter || u.tier === tierFilter;
+      const matchStatus = !statusFilter || u.status === statusFilter;
+      return matchQ && matchTier && matchStatus;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-500">Tidak ada pelanggan yang cocok dengan kriteria.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(u => `
+      <tr class="hover:bg-slate-900/50">
+        <td class="p-4">
+          <div class="font-bold text-white">${u.name}</div>
+          <div class="text-[10px] text-slate-500 font-mono">${u.id}</div>
+        </td>
+        <td class="p-4 text-slate-300">
+          <div>${u.email}</div>
+          <div class="text-[10px] text-slate-500">${u.phone || '-'}</div>
+        </td>
+        <td class="p-4">
+          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold">${(u.brands || []).length} / 5</span>
+        </td>
+        <td class="p-4">
+          <span class="px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 font-bold">${u.tier || 'Classic'}</span>
+          <div class="text-[10px] text-slate-500 mt-0.5">${u.points || 0} Poin</div>
+        </td>
+        <td class="p-4 font-bold text-emerald-400">${SG_CORE.formatRp(u.balance || 0)}</td>
+        <td class="p-4">
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === 'SUSPENDED' ? 'bg-red-500/20 text-red-300' : 'bg-emerald-500/20 text-emerald-300'}">
+            ${u.status || 'ACTIVE'}
+          </span>
+        </td>
+        <td class="p-4 text-right space-x-1">
+          <button onclick="viewCustomerDetail('${u.id}')" title="Lihat Profil Lengkap" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400">
+            <span class="material-symbols-outlined text-[16px]">visibility</span>
+          </button>
+          <button onclick="openAdjustBalanceModal('${u.id}')" title="Adjust Saldo" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400">
+            <span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
+          </button>
+          <button onclick="toggleSuspendCustomer('${u.id}')" title="${u.status === 'SUSPENDED' ? 'Aktifkan Akun' : 'Suspend Akun'}" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 ${u.status === 'SUSPENDED' ? 'text-emerald-400' : 'text-red-400'}">
+            <span class="material-symbols-outlined text-[16px]">${u.status === 'SUSPENDED' ? 'check_circle' : 'block'}</span>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function viewCustomerDetail(userId) {
+    const user = SG_CORE.DB.findUserById(userId);
+    if (!user) return showToast('Customer tidak ditemukan', 'error');
+
+    const orders = SG_CORE.DB.getOrders().filter(o => o.userId === userId);
+    const ledger = SG_CORE.DB.getLedger().filter(l => l.userId === userId);
+    const topups = SG_CORE.DB.getTopups().filter(t => t.userId === userId);
+
+    document.getElementById('cdetail-sub').textContent = `${user.name} (${user.email}) · Terdaftar: ${new Date(user.createdAt || Date.now()).toLocaleDateString('id-ID')}`;
+
+    const container = document.getElementById('cdetail-content');
+    container.innerHTML = `
+      <!-- Profile Header Card -->
+      <div class="admin-dark-card p-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+        <div>
+          <div class="text-slate-500 uppercase">Customer ID</div>
+          <div class="text-white font-bold text-base mt-1">${user.id}</div>
+          <div class="text-slate-400 mt-1">${user.phone || '-'}</div>
+        </div>
+        <div>
+          <div class="text-slate-500 uppercase">Saldo Aktif</div>
+          <div class="text-emerald-400 font-bold text-2xl mt-1">${SG_CORE.formatRp(user.balance)}</div>
+          <button onclick="openAdjustBalanceModal('${user.id}')" class="text-blue-400 underline mt-1 text-[11px]">+ Adjust Saldo</button>
+        </div>
+        <div>
+          <div class="text-slate-500 uppercase">Kasta &amp; Poin</div>
+          <div class="text-blue-400 font-bold text-xl mt-1">${user.tier}</div>
+          <div class="text-slate-300 mt-1">${user.points} Poin Reward</div>
+        </div>
+        <div>
+          <div class="text-slate-500 uppercase">Total Belanja</div>
+          <div class="text-white font-bold text-xl mt-1">${SG_CORE.formatRp(user.totalSpend)}</div>
+          <div class="text-slate-400 mt-1">${orders.length} Pesanan Sukses</div>
+        </div>
+      </div>
+
+      <!-- Tab Sections -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Brands Card -->
+        <div class="admin-dark-card p-6 space-y-3">
+          <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider">Brand Terdaftar (${(user.brands || []).length}/5)</h3>
+          <div class="space-y-2">
+            ${(user.brands || []).length === 0 ? '<div class="text-slate-500 text-xs">Belum ada brand ditambahkan.</div>' :
+              user.brands.map(b => `
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono flex justify-between items-center">
+                  <div>
+                    <div class="text-white font-bold">${b.name}</div>
+                    <div class="text-slate-500 text-[11px]">${b.username || 'Tanpa username'}</div>
+                  </div>
+                  <div class="text-right">
+                    <span class="px-2 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-400 font-bold">${SG_CORE.DURATION_LABELS[b.lockedDuration] || 'Belum Terkunci'}</span>
+                    <div class="text-emerald-400 text-[11px] mt-0.5">${(b.totalPosts||0) - (b.usedPosts||0)}/${b.totalPosts||0} Post</div>
+                  </div>
+                </div>
+              `).join('')
+            }
+          </div>
+        </div>
+
+        <!-- Ledger Card -->
+        <div class="admin-dark-card p-6 space-y-3">
+          <h3 class="text-sm font-bold text-white font-mono uppercase tracking-wider">Mutasi Saldo Terakhir</h3>
+          <div class="space-y-2 max-h-64 overflow-y-auto">
+            ${ledger.length === 0 ? '<div class="text-slate-500 text-xs">Belum ada riwayat mutasi saldo.</div>' :
+              ledger.map(l => `
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono flex justify-between items-center">
+                  <div>
+                    <div class="text-slate-200 font-bold">${l.description}</div>
+                    <div class="text-slate-500 text-[10px]">${l.id} · ${new Date(l.date).toLocaleString('id-ID')}</div>
+                  </div>
+                  <div class="text-right font-bold ${l.type === 'CREDIT' ? 'text-emerald-400' : 'text-red-400'}">
+                    ${l.type === 'CREDIT' ? '+' : '-'} ${SG_CORE.formatRp(l.amount)}
+                  </div>
+                </div>
+              `).join('')
+            }
+          </div>
+        </div>
+      </div>
+    `;
+
+    navigateRoute('customer-detail');
+  }
+
+  function openAdjustBalanceModal(userId) {
+    const user = SG_CORE.DB.findUserById(userId);
+    if (!user) return;
+    document.getElementById('adj-cust-id').value = user.id;
+    document.getElementById('adj-cust-name').textContent = user.name;
+    document.getElementById('adj-cust-balance').textContent = SG_CORE.formatRp(user.balance);
+    document.getElementById('adj-amount').value = '';
+    document.getElementById('adj-reason').value = '';
+    openModal('modal-adjust-balance');
+  }
+
+  async function submitAdjustBalance() {
+    const customerId = document.getElementById('adj-cust-id').value;
+    const type = document.getElementById('adj-type').value;
+    const amount = document.getElementById('adj-amount').value;
+    const reason = document.getElementById('adj-reason').value;
+
+    try {
+      await SG_CORE.Services.adjustBalance({
+        customerId,
+        type,
+        amount,
+        reason,
+        adminSession: currentAdminSession
+      });
+      closeModal('modal-adjust-balance');
+      showToast('Saldo berhasil disesuaikan dan tercatat di audit ledger.', 'success');
+      renderCustomersTable();
+      renderLedgerTable();
+    } catch (err) {
+      showToast(err.message || 'Gagal mengubah saldo', 'error');
+    }
+  }
+
+  function toggleSuspendCustomer(userId) {
+    const users = SG_CORE.DB.getUsers();
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx === -1) return;
+    const isSuspended = users[idx].status === 'SUSPENDED';
+    users[idx].status = isSuspended ? 'ACTIVE' : 'SUSPENDED';
+    SG_CORE.DB.saveUsers(users);
+
+    SG_CORE.DB.logActivity({
+      adminId: currentAdminSession.adminId,
+      adminName: currentAdminSession.name,
+      adminRole: currentAdminSession.role,
+      action: isSuspended ? 'ACTIVATE_CUSTOMER' : 'SUSPEND_CUSTOMER',
+      target: userId,
+      details: `Customer status changed to ${users[idx].status}`
+    });
+
+    showToast(`Status customer diubah menjadi ${users[idx].status}`, 'info');
+    renderCustomersTable();
+  }
+
+  // ==========================================
+  // ORDERS CONTROLLER
+  // ==========================================
+  function renderOrdersTable() {
+    const orders = SG_CORE.DB.getOrders();
+    const tbody = document.getElementById('orders-table-body');
+    if (orders.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-500">Belum ada order dicatat.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = orders.map(o => `
+      <tr class="hover:bg-slate-900/50">
+        <td class="p-4 font-bold text-white">
+          <div>${o.id}</div>
+          <div class="text-[10px] text-slate-500">${new Date(o.date).toLocaleDateString('id-ID')}</div>
+        </td>
+        <td class="p-4">
+          <div class="text-slate-200 font-bold">${o.userName || o.userId}</div>
+          <div class="text-[11px] text-blue-400">Brand: ${o.brandName || '-'}</div>
+        </td>
+        <td class="p-4">
+          <div class="text-slate-200">${o.service}</div>
+          <div class="text-[10px] text-slate-400">${SG_CORE.DURATION_LABELS[o.duration] || o.duration} (${o.postCount} post)</div>
+        </td>
+        <td class="p-4">
+          <div class="text-slate-200">${o.platform}</div>
+          <div class="text-[10px] text-slate-500 truncate max-w-xs">${o.target}</div>
+        </td>
+        <td class="p-4 font-bold text-emerald-400">${SG_CORE.formatRp(o.total)}</td>
+        <td class="p-4">
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${o.status === 'Active' ? 'bg-blue-500/20 text-blue-300' : o.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}">
+            ${o.status}
+          </span>
+        </td>
+        <td class="p-4 text-right">
+          <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-300">
+            <option value="Active" ${o.status==='Active'?'selected':''}>Active</option>
+            <option value="Completed" ${o.status==='Completed'?'selected':''}>Completed</option>
+            <option value="Cancelled" ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
+          </select>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function updateOrderStatus(orderId, newStatus) {
+    const orders = SG_CORE.DB.getOrders();
+    const idx = orders.findIndex(o => o.id === orderId);
+    if (idx === -1) return;
+    orders[idx].status = newStatus;
+    SG_CORE.DB.saveOrders(orders);
+
+    SG_CORE.DB.logActivity({
+      adminId: currentAdminSession.adminId,
+      adminName: currentAdminSession.name,
+      adminRole: currentAdminSession.role,
+      action: 'UPDATE_ORDER_STATUS',
+      target: orderId,
+      details: `Status order diubah ke ${newStatus}`
+    });
+
+    showToast(`Status order ${orderId} diubah ke ${newStatus}`, 'success');
+  }
+
+  // ==========================================
+  // PACKAGES CONTROLLER
+  // ==========================================
+  function renderPackagesGrid() {
+    const grid = document.getElementById('packages-cards-grid');
+    grid.innerHTML = SG_CORE.DEFAULT_PACKAGES.map(p => `
+      <div class="admin-dark-card p-6 space-y-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-xs font-mono text-blue-400 font-bold">LEVEL 0${p.level}</span>
+            <h3 class="text-xl font-extrabold text-white">${p.name}</h3>
+          </div>
+          <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300 text-xs font-mono">${p.tier}</span>
+        </div>
+        <div class="space-y-2 py-3 border-y border-slate-800 text-xs font-mono">
+          <div class="flex justify-between"><span class="text-slate-400">Satuan (1 Post):</span><span class="text-white font-bold">${SG_CORE.formatRp(p.prices.satuan)}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Trial (1 Post):</span><span class="text-white font-bold">${SG_CORE.formatRp(p.prices.trial)}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Mingguan (7 Post):</span><span class="text-white font-bold">${SG_CORE.formatRp(p.totals.weekly)}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Bulanan (30 Post):</span><span class="text-emerald-400 font-bold">${SG_CORE.formatRp(p.totals.monthly)}</span></div>
+        </div>
+        <div class="text-xs text-slate-400 space-y-1">
+          <div class="text-slate-300 font-semibold text-[11px] uppercase font-mono">Metrik Bulanan:</div>
+          <div>• Views: ${p.metrics.monthly.views.toLocaleString('id-ID')}</div>
+          <div>• Likes: ${p.metrics.monthly.likes.toLocaleString('id-ID')}</div>
+          <div>• Komen: ${p.metrics.monthly.comments}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ==========================================
+  // FINANCIAL LEDGER CONTROLLER
+  // ==========================================
+  function renderLedgerTable() {
+    const ledger = SG_CORE.DB.getLedger();
+    const tbody = document.getElementById('ledger-table-body');
+    if (ledger.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-slate-500">Belum ada transaksi di ledger.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = ledger.map(l => `
+      <tr class="hover:bg-slate-900/50">
+        <td class="p-4 font-bold text-white">${l.id}</td>
+        <td class="p-4 text-slate-300">${l.userId}</td>
+        <td class="p-4">
+          <span class="px-2 py-0.5 rounded font-bold text-[10px] ${l.type === 'CREDIT' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'}">
+            ${l.type}
+          </span>
+        </td>
+        <td class="p-4 text-slate-300">${l.category}</td>
+        <td class="p-4 font-bold ${l.type === 'CREDIT' ? 'text-emerald-400' : 'text-red-400'}">${l.type === 'CREDIT' ? '+' : '-'} ${SG_CORE.formatRp(l.amount)}</td>
+        <td class="p-4 text-slate-400">${SG_CORE.formatRp(l.balanceBefore)}</td>
+        <td class="p-4 text-slate-200 font-bold">${SG_CORE.formatRp(l.balanceAfter)}</td>
+        <td class="p-4 text-slate-400 text-[11px] truncate max-w-xs">${l.description}</td>
+        <td class="p-4 text-slate-500 text-[10px]">${new Date(l.date).toLocaleString('id-ID')}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ==========================================
+  // MEMBERSHIP TIERS CONTROLLER
+  // ==========================================
+  function renderMembershipTiers() {
+    const grid = document.getElementById('membership-tiers-grid');
+    grid.innerHTML = SG_CORE.TIERS.map(t => `
+      <div class="admin-dark-card p-5 border-slate-800 space-y-3">
+        <div class="text-3xl">${t.icon}</div>
+        <div class="text-lg font-extrabold text-white">${t.name}</div>
+        <div class="text-xs text-blue-400 font-mono">${t.min.toLocaleString('id-ID')} - ${t.max === Infinity ? '∞' : t.max.toLocaleString('id-ID')} Poin</div>
+        <div class="text-xs text-slate-400 leading-relaxed">${t.desc}</div>
+        <div class="pt-3 border-t border-slate-800 space-y-1 text-xs font-mono text-slate-300">
+          <div>• Diskon: <strong>${t.discount}%</strong></div>
+          <div>• Point Rate: <strong>${t.rate}x</strong></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ==========================================
+  // POINTS & USAGE CONTROLLER
+  // ==========================================
+  function renderPointsTable() {
+    const list = SG_CORE.DB.getPointsLedger();
+    const tbody = document.getElementById('points-table-body');
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500">Belum ada riwayat transaksi poin reward.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(p => `
+      <tr class="hover:bg-slate-900/50">
+        <td class="p-4 font-bold text-white">${p.id}</td>
+        <td class="p-4 text-slate-300">${p.userId}</td>
+        <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300">${p.type}</span></td>
+        <td class="p-4 font-bold text-blue-400">+${p.amount} Poin</td>
+        <td class="p-4 text-slate-400 text-xs">${p.description}</td>
+        <td class="p-4 text-slate-500 text-[10px]">${new Date(p.date).toLocaleString('id-ID')}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderUsageTracking() {
+    const users = SG_CORE.DB.getUsers();
+    const container = document.getElementById('usage-cards-container');
+    let list = [];
+
+    users.forEach(u => {
+      (u.brands || []).forEach(b => {
+        if (b.lockedDuration) {
+          const sisa = (b.totalPosts || 0) - (b.usedPosts || 0);
+          const pct = Math.min(100, Math.floor(((b.usedPosts || 0) / (b.totalPosts || 1)) * 100));
+          list.push({ user: u.name, brand: b.name, sisa, total: b.totalPosts || 0, used: b.usedPosts || 0, pct, duration: b.lockedDuration });
+        }
+      });
+    });
+
+    if (list.length === 0) {
+      container.innerHTML = '<div class="admin-dark-card p-8 text-center text-slate-500 text-xs">Belum ada kuota post yang aktif.</div>';
+      return;
+    }
+
+    container.innerHTML = list.map(item => `
+      <div class="admin-dark-card p-5 space-y-3 font-mono text-xs">
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-white font-bold text-sm">${item.brand}</span>
+            <span class="text-slate-400 ml-2">(${item.user})</span>
+          </div>
+          <span class="text-blue-400 font-bold">${item.sisa} Sisa Post dari ${item.total} Total</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+          <div class="bg-blue-500 h-2.5 rounded-full" style="width: ${item.pct}%"></div>
+        </div>
+        <div class="flex justify-between text-[11px] text-slate-500">
+          <span>Terpakai: ${item.used} post (${item.pct}%)</span>
+          <span>Paket: ${SG_CORE.DURATION_LABELS[item.duration] || item.duration}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ==========================================
+  // WEBSITE CMS CONTROLLER
+  // ==========================================
+  function renderWebsiteCms() {
+    const cms = SG_CORE.DB.getCms();
+    document.getElementById('cms-flash-toggle').checked = !!cms.flashDeal.enabled;
+    document.getElementById('cms-flash-title').value = cms.flashDeal.title || '';
+    document.getElementById('cms-flash-features').value = cms.flashDeal.features || '';
+    document.getElementById('cms-flash-normal').value = cms.flashDeal.normalPrice || 85000;
+    document.getElementById('cms-flash-promo').value = cms.flashDeal.promoPrice || 49000;
+
+    document.getElementById('cms-announcement-text').value = cms.announcement?.text || '';
+    document.getElementById('cms-wa-number').value = cms.contact?.waNumber || '';
+    document.getElementById('cms-wa-display').value = cms.contact?.waDisplay || '';
+    document.getElementById('cms-hours').value = cms.contact?.operationalHours || '';
+
+    renderFaqList(cms.faqs || []);
+  }
+
+  function saveCmsFlashDeal() {
+    const cms = SG_CORE.DB.getCms();
+    cms.flashDeal.enabled = document.getElementById('cms-flash-toggle').checked;
+    cms.flashDeal.title = document.getElementById('cms-flash-title').value.trim();
+    cms.flashDeal.features = document.getElementById('cms-flash-features').value.trim();
+    cms.flashDeal.normalPrice = Number(document.getElementById('cms-flash-normal').value);
+    cms.flashDeal.promoPrice = Number(document.getElementById('cms-flash-promo').value);
+
+    SG_CORE.DB.saveCms(cms);
+    SG_CORE.DB.logActivity({
+      adminId: currentAdminSession.adminId,
+      adminName: currentAdminSession.name,
+      adminRole: currentAdminSession.role,
+      action: 'UPDATE_CMS_FLASH_DEAL',
+      details: 'Pengaturan Flash Deal website diperbarui'
+    });
+    showToast('Flash Deal berhasil disimpan!', 'success');
+  }
+
+  function saveCmsContact() {
+    const cms = SG_CORE.DB.getCms();
+    cms.announcement.text = document.getElementById('cms-announcement-text').value.trim();
+    cms.contact.waNumber = document.getElementById('cms-wa-number').value.trim();
+    cms.contact.waDisplay = document.getElementById('cms-wa-display').value.trim();
+    cms.contact.operationalHours = document.getElementById('cms-hours').value.trim();
+
+    SG_CORE.DB.saveCms(cms);
+    SG_CORE.DB.logActivity({
+      adminId: currentAdminSession.adminId,
+      adminName: currentAdminSession.name,
+      adminRole: currentAdminSession.role,
+      action: 'UPDATE_CMS_CONTACT',
+      details: 'Kontak & Pengumuman website diperbarui'
+    });
+    showToast('Informasi kontak berhasil disimpan!', 'success');
+  }
+
+  function renderFaqList(faqs) {
+    const list = document.getElementById('cms-faq-list');
+    list.innerHTML = faqs.map((f, idx) => `
+      <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs flex justify-between items-start gap-4">
+        <div>
+          <div class="text-white font-bold">${f.q}</div>
+          <div class="text-slate-400 mt-1">${f.a}</div>
+        </div>
+        <button onclick="removeFaq(${idx})" class="text-slate-500 hover:text-red-400">
+          <span class="material-symbols-outlined text-lg">delete</span>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  function openAddFaqModal() {
+    document.getElementById('faq-new-q').value = '';
+    document.getElementById('faq-new-a').value = '';
+    openModal('modal-add-faq');
+  }
+
+  function submitAddFaq() {
+    const q = document.getElementById('faq-new-q').value.trim();
+    const a = document.getElementById('faq-new-a').value.trim();
+    if (!q || !a) return showToast('Pertanyaan & Jawaban wajib diisi', 'error');
+
+    const cms = SG_CORE.DB.getCms();
+    cms.faqs = cms.faqs || [];
+    cms.faqs.push({ q, a });
+    SG_CORE.DB.saveCms(cms);
+    closeModal('modal-add-faq');
+    renderFaqList(cms.faqs);
+    showToast('FAQ baru ditambahkan!', 'success');
+  }
+
+  function removeFaq(idx) {
+    if (!confirm('Hapus item FAQ ini?')) return;
+    const cms = SG_CORE.DB.getCms();
+    cms.faqs.splice(idx, 1);
+    SG_CORE.DB.saveCms(cms);
+    renderFaqList(cms.faqs);
+    showToast('FAQ dihapus', 'info');
+  }
+
+  // ==========================================
+  // ADMIN MANAGEMENT (SUPER_ADMIN ONLY)
+  // ==========================================
+  function renderAdminsTable() {
+    const users = SG_CORE.DB.getUsers().filter(u => u.role !== SG_CORE.ROLES.CUSTOMER);
+    const tbody = document.getElementById('admins-table-body');
+
+    tbody.innerHTML = users.map(u => `
+      <tr class="hover:bg-slate-900/50">
+        <td class="p-4">
+          <div class="font-bold text-white">${u.name}</div>
+          <div class="text-[10px] text-slate-500">${u.id}</div>
+        </td>
+        <td class="p-4">
+          <span class="px-2.5 py-1 rounded text-[10px] font-bold ${u.role === 'SUPER_ADMIN' ? 'bg-amber-500/20 text-amber-300' : u.role === 'ADMIN' ? 'bg-blue-500/20 text-blue-300' : 'bg-slate-800 text-slate-300'}">
+            ${u.role}
+          </span>
+        </td>
+        <td class="p-4 text-slate-300">
+          <div>${u.email}</div>
+          <div class="text-[10px] text-slate-500">${u.phone || '-'}</div>
+        </td>
+        <td class="p-4">
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.status === 'SUSPENDED' ? 'bg-red-500/20 text-red-300' : 'bg-emerald-500/20 text-emerald-300'}">
+            ${u.status || 'ACTIVE'}
+          </span>
+        </td>
+        <td class="p-4 text-slate-400 text-xs">${u.lastLogin ? new Date(u.lastLogin).toLocaleString('id-ID') : '-'}</td>
+        <td class="p-4 text-right">
+          ${u.id !== currentAdminSession.adminId && u.role !== SG_CORE.ROLES.SUPER_ADMIN ? `
+            <button onclick="toggleSuspendAdmin('${u.id}')" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-red-400 font-bold text-xs">
+              ${u.status === 'SUSPENDED' ? 'Aktifkan' : 'Nonaktifkan'}
+            </button>` : '<span class="text-slate-600 text-xs">Protected</span>'}
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openAddAdminModal() {
+    if (currentAdminSession.role !== SG_CORE.ROLES.SUPER_ADMIN) {
+      return showToast('Hanya SUPER_ADMIN yang dapat menambahkan administrator.', 'error');
+    }
+    document.getElementById('newadmin-name').value = '';
+    document.getElementById('newadmin-email').value = '';
+    document.getElementById('newadmin-phone').value = '';
+    document.getElementById('newadmin-pass').value = '';
+    openModal('modal-add-admin');
+  }
+
+  async function handleCreateAdminSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('newadmin-name').value.trim();
+    const email = document.getElementById('newadmin-email').value.trim().toLowerCase();
+    const phone = document.getElementById('newadmin-phone').value.trim();
+    const role = document.getElementById('newadmin-role').value;
+    const pass = document.getElementById('newadmin-pass').value;
+
+    const users = SG_CORE.DB.getUsers();
+    if (users.find(u => u.email === email)) {
+      return showToast('Email administrator sudah digunakan', 'error');
+    }
+
+    const salt = SG_CORE.generateSalt();
+    const { hash } = await SG_CORE.hashPassword(pass, salt);
+
+    const newAdmin = {
+      id: 'ADM-' + Math.floor(1000 + Math.random() * 9000),
+      name,
+      email,
+      phone,
+      passwordHash: hash,
+      passwordSalt: salt,
+      role,
+      tier: 'Diamond',
+      balance: 0,
+      points: 0,
+      status: 'ACTIVE',
+      brands: [],
+      createdAt: Date.now(),
+      lastLogin: null
+    };
+
+    users.push(newAdmin);
+    SG_CORE.DB.saveUsers(users);
+
+    SG_CORE.DB.logActivity({
+      adminId: currentAdminSession.adminId,
+      adminName: currentAdminSession.name,
+      adminRole: currentAdminSession.role,
+      action: 'CREATE_ADMIN_ACCOUNT',
+      target: newAdmin.id,
+      details: `Administrator baru dibuat: ${newAdmin.name} (${newAdmin.email}) dengan peran ${role}`
+    });
+
+    closeModal('modal-add-admin');
+    showToast(`Akun ${role} untuk ${name} berhasil dibuat!`, 'success');
+    renderAdminsTable();
+  }
+
+  function toggleSuspendAdmin(adminId) {
+    const users = SG_CORE.DB.getUsers();
+    const idx = users.findIndex(u => u.id === adminId);
+    if (idx === -1) return;
+    const curStatus = users[idx].status || 'ACTIVE';
+    users[idx].status = curStatus === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    SG_CORE.DB.saveUsers(users);
+
+    SG_CORE.DB.logActivity({
+      adminId: currentAdminSession.adminId,
+      adminName: currentAdminSession.name,
+      adminRole: currentAdminSession.role,
+      action: 'UPDATE_ADMIN_STATUS',
+      target: adminId,
+      details: `Status administrator ${users[idx].name} diubah menjadi ${users[idx].status}`
+    });
+
+    showToast(`Status admin diubah menjadi ${users[idx].status}`, 'info');
+    renderAdminsTable();
+  }
+
+  // ==========================================
+  // ACTIVITY & LOGIN LOGS
+  // ==========================================
+  function renderActivityLogsTable() {
+    const logs = SG_CORE.DB.getActivityLogs();
+    const tbody = document.getElementById('activity-logs-table-body');
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-500">Belum ada catatan aktivitas.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = logs.map(l => `
+      <tr class="hover:bg-slate-900/50">
+        <td class="p-4 text-slate-400 text-xs">${new Date(l.date).toLocaleString('id-ID')}</td>
+        <td class="p-4 font-bold text-white">${l.adminName}</td>
+        <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/20 text-blue-300 font-bold">${l.adminRole}</span></td>
+        <td class="p-4 font-bold text-slate-200">${l.action}</td>
+        <td class="p-4 text-slate-400 font-mono">${l.target || '-'}</td>
+        <td class="p-4 font-bold ${l.amount ? 'text-emerald-400' : 'text-slate-500'}">${l.amount ? SG_CORE.formatRp(l.amount) : '-'}</td>
+        <td class="p-4 text-slate-300 text-xs truncate max-w-sm">${l.details || '-'}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderLoginLogsTable() {
+    const logs = SG_CORE.DB.getLoginLogs();
+    const tbody = document.getElementById('login-logs-table-body');
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500">Belum ada histori login.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = logs.map(l => `
+      <tr class="hover:bg-slate-900/50">
+        <td class="p-4 text-slate-400 text-xs">${new Date(l.date).toLocaleString('id-ID')}</td>
+        <td class="p-4 font-bold text-white">${l.email}</td>
+        <td class="p-4 text-slate-300 font-mono text-[11px]">${l.role}</td>
+        <td class="p-4 text-slate-300">${l.device}</td>
+        <td class="p-4 text-slate-400">${l.browser}</td>
+        <td class="p-4">
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${l.result === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-300' : l.result === 'LOCKED' ? 'bg-red-500/20 text-red-300' : 'bg-amber-500/20 text-amber-300'}">
+            ${l.result}
+          </span>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ==========================================
+  // SYSTEM SETTINGS & UTILS
+  // ==========================================
+  function renderSystemSettings() {
+    const s = SG_CORE.DB.getSettings();
+    document.getElementById('settings-allow-reg').checked = s.allowCustomerRegistration !== false;
+    document.getElementById('settings-maintenance').checked = !!s.maintenanceMode;
+  }
+
+  function saveSystemSettings() {
+    const s = SG_CORE.DB.getSettings();
+    s.allowCustomerRegistration = document.getElementById('settings-allow-reg').checked;
+    s.maintenanceMode = document.getElementById('settings-maintenance').checked;
+    SG_CORE.DB.saveSettings(s);
+
+    SG_CORE.DB.logActivity({
+      adminId: currentAdminSession.adminId,
+      adminName: currentAdminSession.name,
+      adminRole: currentAdminSession.role,
+      action: 'UPDATE_SYSTEM_SETTINGS',
+      details: `Settings updated: allowReg=${s.allowCustomerRegistration}, maintenance=${s.maintenanceMode}`
+    });
+    showToast('Pengaturan sistem berhasil disimpan!', 'success');
+  }
+
+  function exportDatabaseJson() {
+    const snapshot = {
+      exportedAt: new Date().toISOString(),
+      users: SG_CORE.DB.getUsers(),
+      orders: SG_CORE.DB.getOrders(),
+      topups: SG_CORE.DB.getTopups(),
+      ledger: SG_CORE.DB.getLedger(),
+      pointsLedger: SG_CORE.DB.getPointsLedger(),
+      activityLogs: SG_CORE.DB.getActivityLogs(),
+      loginLogs: SG_CORE.DB.getLoginLogs(),
+      cms: SG_CORE.DB.getCms(),
+      settings: SG_CORE.DB.getSettings()
+    };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(snapshot, null, 2));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", `solvient_growth_backup_${Date.now()}.json`);
+    dlAnchor.click();
+    showToast('Database berhasil diekspor ke file JSON.', 'success');
+  }
+
+  function confirmResetDemoData() {
+    if (!confirm('PERINGATAN: Seluruh data transaksi lokal akan direset ke sample seed awal. Lanjutkan?')) return;
+    localStorage.clear();
+    SG_CORE.init().then(() => {
+      showToast('Data berhasil direset. Silakan refresh.', 'info');
+      setTimeout(() => window.location.reload(), 800);
+    });
+  }
+
+  function openForgotPasswordModal() {
+    openModal('modal-forgot-password');
+  }
+
+  // ==========================================
+  // INITIALIZATION
+  // ==========================================
+  window.addEventListener('DOMContentLoaded', () => {
+    SG_CORE.init().then(() => {
+      handleRouteChange();
+    });
+  });
+  window.addEventListener('hashchange', handleRouteChange);
+
+  // Global exports for inline HTML events
+  window.navigateRoute = navigateRoute;
+  window.handleAdminLogin = handleAdminLogin;
+  window.handleAdminLogout = handleAdminLogout;
+  window.handleFirstAdminSetup = handleFirstAdminSetup;
+  window.executeApproveTopup = executeApproveTopup;
+  window.promptRejectTopup = promptRejectTopup;
+  window.submitRejectTopup = submitRejectTopup;
+  window.filterTopups = filterTopups;
+  window.viewCustomerDetail = viewCustomerDetail;
+  window.openAdjustBalanceModal = openAdjustBalanceModal;
+  window.submitAdjustBalance = submitAdjustBalance;
+  window.toggleSuspendCustomer = toggleSuspendCustomer;
+  window.updateOrderStatus = updateOrderStatus;
+  window.saveCmsFlashDeal = saveCmsFlashDeal;
+  window.saveCmsContact = saveCmsContact;
+  window.openAddFaqModal = openAddFaqModal;
+  window.submitAddFaq = submitAddFaq;
+  window.removeFaq = removeFaq;
+  window.openAddAdminModal = openAddAdminModal;
+  window.handleCreateAdminSubmit = handleCreateAdminSubmit;
+  window.toggleSuspendAdmin = toggleSuspendAdmin;
+  window.saveSystemSettings = saveSystemSettings;
+  window.exportDatabaseJson = exportDatabaseJson;
+  window.confirmResetDemoData = confirmResetDemoData;
+  window.openForgotPasswordModal = openForgotPasswordModal;
+  window.toggleAdminSidebar = toggleAdminSidebar;
+  window.togglePassVisibility = togglePassVisibility;
+  window.closeModal = closeModal;
+
+})();
+</script>
+</body>
+</html>
